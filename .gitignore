@@ -1,0 +1,18 @@
+*.class
+
+# compiled file
+lexer
+
+# output file
+
+
+#temp file
+*.log
+*.cache
+*.diff
+*.patch
+*.tmp
+
+# system ignore
+.DS_Strore
+Thnmbs.db
