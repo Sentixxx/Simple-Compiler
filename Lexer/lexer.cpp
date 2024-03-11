@@ -22,11 +22,11 @@ enum Token {
 };
 
 const std::string reservedWords[] = {
-    "program", "var", "integer", "bool", "real", "const", "begin", "if", "then", "else", "while", "do", "repeat", "until", "for", "to"
+"procedure", "def", "if", "else", "while", "call", "begin", "end", "and", "or"
+
 };
 const std::string operators[] = {
-    "and" , "or" , "not",
-    "+" , "-" , "*" , "/" , "<" , ">" , "<=" , ">=" , "=" , ":="
+    "+" , "-" , "*" , "/" , "=", "<" , ">" , "<=" , ">=" , "<>", "=="
 };
 
 int handle_alpha(std::string word) {
