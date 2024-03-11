@@ -39,7 +39,7 @@ const std::string operators[]     = {"+", "-",  "*",  "/",  "=", "<",
                                      ">", "<=", ">=", "<>", "=="};
 
 std::string   inputFile  = "input.txt";
-std::string   outputFile = "output.txt";
+std::string   outputFile = "out.out";
 std::ifstream is         = std::ifstream(inputFile);
 std::ofstream os         = std::ofstream(outputFile);
 
