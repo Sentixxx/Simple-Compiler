@@ -1,10 +1,10 @@
 *.class
 
 # compiled file
-lexer
+Lexer/lexer
 
 # output file
-
+*.out
 
 #temp file
 *.log
