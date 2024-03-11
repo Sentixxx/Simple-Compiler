@@ -1,5 +1,6 @@
 #include <algorithm>
 #include <fstream>
+#include <iomanip>
 #include <iostream>
 #include <sstream>
 #include <vector>
@@ -284,9 +285,18 @@ void print()
 
 void fout()
 {
+    int maxLength = 0;
     for (const auto& token : tokens) {
-        os << "Line: " << token.line << "  ||  Lexeme:  " << token.lexeme
-           << " ||  Token: " << tok_str[token.token] << "\n";
+        int length = token.lexeme.length();
+        if (length > maxLength) {
+            maxLength = length;
+        }
+    }
+
+    for (const auto& token : tokens) {
+        os << "Line: " << std::setw(4) << token.line
+           << "  ||  Lexeme:  " << std::setw(maxLength) << token.lexeme
+           << " ||  Token: " << std::setw(14) << tok_str[token.token] << "\n";
     }
 }
 
