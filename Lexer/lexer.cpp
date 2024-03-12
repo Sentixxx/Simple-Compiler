@@ -139,6 +139,7 @@ void findToken(char& c)
         int         n    = 0;
         std::string word = "";
         while (isdigit(c) || isalpha(c) || c == '_') {
+            // 可能需要修改逻辑，大于20直接报错
             if (n < 20) {
                 word += c;
                 n++;
@@ -286,15 +287,7 @@ int Scanner()
     return 1;
 }
 
-void print()
-{
-    for (const auto& token : tokens) {
-        std::cout << "Line: " << token.line << "  ||  Lexeme:  " << token.lexeme
-                  << " ||  Token: " << tok_str[token.token] << "\n";
-    }
-}
-
-void fout()
+int getMaxLength()
 {
     int maxLength = 0;
     for (const auto& token : tokens) {
@@ -303,10 +296,24 @@ void fout()
             maxLength = length;
         }
     }
+    return maxLength;
+}
 
+void print()
+{
+    for (const auto& token : tokens) {
+        std::cout << "Line: " << std::setw(4) << token.line
+                  << "  ||  Lexeme:  " << std::setw(getMaxLength())
+                  << token.lexeme << " ||  Token: " << std::setw(14)
+                  << tok_str[token.token] << "\n";
+    }
+}
+
+void fout()
+{
     for (const auto& token : tokens) {
         os << "Line: " << std::setw(4) << token.line
-           << "  ||  Lexeme:  " << std::setw(maxLength) << token.lexeme
+           << "  ||  Lexeme:  " << std::setw(getMaxLength()) << token.lexeme
            << " ||  Token: " << std::setw(14) << tok_str[token.token] << "\n";
     }
 }
@@ -314,7 +321,7 @@ void fout()
 int main()
 {
     Scanner();
-    // print();
+    print();
     fout();
     return 0;
 }
