@@ -33,20 +33,29 @@ const std::string tok_transformed[] = {
     "Error",           "identifier",     "reserved word",
     "string",          "number",         "float",
     "delimiter",       "basic operator", "compare operator",
-    "assign operator", "comment"};
+    "assign operator", "comment",
+};
 
 bool comment_flag = false;
 
-const std::string reservedWords[]   = {"int",  "float", "string", "if",
-                                       "else", "while", "return", "break",
-                                       "and",  "or"
+const std::string reservedWords[] = {
+    "int",   "float",  "string", "if",  "else",
+    "while", "return", "break",  "and", "or",
 
 };
-const std::string basic_operators[] = {"+", "-",  "*",  "/",  "=", "<",
-                                       ">", "<=", ">=", "<>", "=="};
+const std::string basic_operators[] = {
+    "+",
+    "-",
+    "*",
+    "/",
+};
 
-const std::string compare_operators[] = {"<", ">", "<=", ">=", "==", "!="};
-const std::string assign_operators[]  = {"="};
+const std::string compare_operators[] = {
+    "<", ">", "<=", ">=", "==", "!=",
+};
+const std::string assign_operators[] = {
+    "=",
+};
 
 std::string   inputFile  = "input.txt";
 std::string   outputFile = "out.out";
@@ -162,7 +171,8 @@ Token sort(std::string& word)
 
 void saveToken(int line, int column, std::string lexeme, Token token)
 {
-    if (lexeme.size() != 1)
+    if (lexeme != " " && lexeme != ";" && lexeme != "," && lexeme != "{" &&
+        lexeme != "(" && lexeme != "}" && lexeme != ")")
         column = column - lexeme.size();
     tokens.push_back({line, column, lexeme, token});
 }
@@ -170,7 +180,7 @@ void saveToken(int line, int column, std::string lexeme, Token token)
 void newLine()
 {
     lineCounter++;
-    columnCounter = 1;
+    columnCounter = 0;
 }
 
 std::string convertToVisible(std::string str)
@@ -334,7 +344,7 @@ int Scanner()
 
     char c = getchar(is);
 
-    while (is.peek() != EOF) {
+    while (c != EOF) {
         // std::cout << c;
         //  c = getchar(is);
         if (c == '\n') {
