@@ -64,6 +64,9 @@ std::vector<TokenInfo> tokens;
 
 Token handleAlpha(std::string word)
 {
+    if (word.size() > 20) {
+        return Error;
+    }
     std::transform(word.begin(), word.end(), word.begin(), ::tolower);
     for (int i = 0; i < sizeof(reservedWords) / sizeof(reservedWords[0]); i++) {
         if (word == reservedWords[i]) {
@@ -75,7 +78,7 @@ Token handleAlpha(std::string word)
 
 Token handleOperator(std::string word)
 {
-    for (int i = 0; i < sizeof(operators) / sizeof(operators[0]); i++) {
+    for (int i = 0; i < 10; i++) {
         if (word == operators[i]) {
             return tok_op;
         }
@@ -83,11 +86,23 @@ Token handleOperator(std::string word)
     return Error;
 }
 
+Token handleDigit(std::string word)
+{
+    if (word[0] == '0' && word.length() > 1)
+        return Error;
+    for (char c : word) {
+        if (!isdigit(c)) {
+            return Error;
+        }
+    }
+    return tok_con;
+}
+
 Token sort(std::string& word)
 {
     // std::cout << word[0];
     if (isdigit(word[0])) {
-        return tok_con;
+        return handleDigit(word);
     }
     else if (isalpha(word[0]) || word[0] == '_') {
         return handleAlpha(word);
@@ -95,9 +110,9 @@ Token sort(std::string& word)
     else if (word[0] == '*' || word[0] == '+' || word[0] == '-') {
         return tok_op;
     }
-    else if (word[0] == '\'' || word[0] == '\"') {
-        return tok_con;
-    }
+    // else if (word[0] == '\'' || word[0] == '\"') {
+    //     return tok_con;
+    // }
     else if (word[0] == '\\') {
         return tok_con;
     }
@@ -134,12 +149,8 @@ void findToken(char& c)
     }
     else {
         if (isdigit(c)) {
-            if (c == '0') {
-                saveToken(lineCounter, std::string(c, 1), Error);
-                c = getchar(is);
-            }
             std::string word = "";
-            while (isdigit(c)) {
+            while (isdigit(c) || isalpha(c)) {
                 word += c;
                 c = getchar(is);
             }
