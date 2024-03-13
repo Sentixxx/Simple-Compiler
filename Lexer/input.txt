@@ -1,14 +1,2 @@
-/*int main() {
-   int a,int b;
-   a = 1;
-   */
-  // b = 250;
-   a = a + b;
-   b = b + a;
-   b = b + b;
-   
-   float _b = 1;
-   if(_b == 1) {
-      floag _c_sf = 00.01;
-   }
-}
+int main() a;
+aa
