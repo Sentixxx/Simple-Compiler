@@ -212,7 +212,7 @@ void findToken(char& c, std::vector<TokenInfo>& tokens = tokens)
         std::string word = "";
         while (isdigit(c) || isalpha(c) || c == '_') {
             // 可能需要修改逻辑，大于20直接报错
-            if (n < 20) {
+            if (n < 32) {
                 word += c;
                 n++;
             }
@@ -356,8 +356,6 @@ void findToken(char& c, std::vector<TokenInfo>& tokens = tokens)
 int Scanner(std::vector<TokenInfo>& tokens = tokens)
 {
     lineCounter = 1;
-
-    std::string end_comment = "";
 
     char c = getchar(is);
 
