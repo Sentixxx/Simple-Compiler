@@ -6,6 +6,7 @@ Lexer/lexer
 # output file
 *.out
 
+
 #temp file
 tempCodeRunnerFile.cpp
 *.log
@@ -13,6 +14,8 @@ tempCodeRunnerFile.cpp
 *.diff
 *.patch
 *.tmp
+.vscode
+.json
 
 # system ignore
 .DS_Strore

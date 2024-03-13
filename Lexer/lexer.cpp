@@ -352,8 +352,6 @@ void findToken(char& c , std::vector<TokenInfo>& tokens) {
 int Scanner(std::vector<TokenInfo>& tokens) {
     lineCounter = 1;
 
-    std::string end_comment = "";
-
     char c = getchar(is);
 
     while (c != EOF) {
