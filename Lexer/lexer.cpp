@@ -121,8 +121,6 @@ Token handleOperator(std::string& word) {
 
 Token handleDigit(std::string& word) {
     bool flt = false;
-    if (word[0] == '0' && word.length() > 1)
-        return Error;
     if (word[word.length() - 1] == '.')
         return Error;
     for (char c : word) {
@@ -136,6 +134,8 @@ Token handleDigit(std::string& word) {
             flt = true;
         }
     }
+    if (word[0] == '0' && word.length() > 1 && word[1] != '.')
+        return Error;
     if (!flt) {
         int chk = 0;
         for (char c : word) {
@@ -165,7 +165,8 @@ Token sort(std::string& word) {
     }
 }
 
-void saveToken(int                     line ,
+void saveToken(
+    int                     line ,
     int                     column ,
     std::string             lexeme ,
     Token                   token ,
@@ -196,13 +197,18 @@ std::string convertToVisible(std::string& str) {
     return visibleStr;
 }
 
+bool isdelemiter(char c) {
+    if (c == ' ' || c == '\n' || c == '\t' || c == ';' || c == ',' || c == ')' || c == '(' || c == '{' || c == '}' || c == '=' || c == '+' || c == '-' || c == '/' || c == '*' || c == '>' || c == '<')
+        return true;
+    return false;
+}
+
 void findToken(char& c , std::vector<TokenInfo>& tokens) {
-    if (isalpha(c) || c == '_') {
+    if (isalpha(c) || (c == '_')) {
         int         n = 0;
         std::string word = "";
-        while (isdigit(c) || isalpha(c) || c == '_') {
-            // 可能需要修改逻辑，大于20直接报错
-            if (n < 20) {
+        while (!isdelemiter(c)) {
+            if (n < 32) {
                 word += c;
                 n++;
             }
@@ -213,7 +219,7 @@ void findToken(char& c , std::vector<TokenInfo>& tokens) {
     else {
         if (isdigit(c)) {
             std::string word = "";
-            while (isdigit(c) || isalpha(c) || c == '.') {
+            while (!isdelemiter(c)) {
                 word += c;
                 c = getchar(is);
             }
@@ -326,7 +332,7 @@ void findToken(char& c , std::vector<TokenInfo>& tokens) {
                         word += c;
                         c = getchar(is);
                     }
-                    saveToken(line , column , convertToVisible(word) , tok_str ,
+                    saveToken(line , column + word.length() - 1 , word , tok_str ,
                         tokens);
                     c = getchar(is);
                 }
