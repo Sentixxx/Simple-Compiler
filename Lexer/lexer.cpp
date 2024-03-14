@@ -342,7 +342,7 @@ void findToken(char& c, std::vector<TokenInfo>& tokens)
                     c                = getchar(is);
                     std::string word = std::string(1, c);
                     int         line = lineCounter, column = columnCounter;
-                    while (c != '"') {
+                    while (c != '"' && c != EOF) {
                         word += c;
                         c = getchar(is);
                     }
