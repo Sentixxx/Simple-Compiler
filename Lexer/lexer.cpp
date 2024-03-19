@@ -284,7 +284,7 @@ void findToken(char& c, std::vector<TokenInfo>& tokens)
                 else if (word == "=") {
                     if (c == '=') {
                         word += c;
-                        std::cout << c << "\n";
+                        // std::cout << c << "\n";
                         saveToken(lineCounter, columnCounter, word, tok_cop,
                                   tokens);
                         c = getchar(is);
@@ -322,8 +322,8 @@ void findToken(char& c, std::vector<TokenInfo>& tokens)
                 else {
                     saveToken(lineCounter, columnCounter, word, Error, tokens);
                     findToken(c, tokens);
-                    std::cout << c << "\n";
-                    c = getchar(is);
+                    // std::cout << c << "\n";
+                    //  c = getchar(is);
                 }
             }
             else {
@@ -424,16 +424,16 @@ int getMaxLength()
 void print(std::ostream& out = std::cout)
 {
     for (const auto& token : tokens) {
-        if (token.token == Error) {
-            out << "Error\n";
-        }
-        else {
-            out << "(" << std::setw(16) << tok_transformed[token.token] << ", "
-                << std::setw(getMaxLength() + 1) << token.lexeme << ", "
-                << std::setw(4) << token.line << ", " << std::setw(4)
-                << token.column << ")"
-                << "\n";
-        }
+        // if (token.token == Error) {
+        //     out << "Error\n";
+        // }
+        // else {
+        out << "(" << std::setw(16) << tok_transformed[token.token] << ", "
+            << std::setw(getMaxLength() + 1) << token.lexeme << ", "
+            << std::setw(4) << token.line << ", " << std::setw(4)
+            << token.column << ")"
+            << "\n";
+        //}
     }
 }
 
