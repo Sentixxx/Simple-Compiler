@@ -68,7 +68,8 @@ int columnCounter = 0;
 
 char getchar(std::istream& stream) {
     char ans = stream.get();
-    columnCounter++;
+    if (ans != EOF)
+        columnCounter++;
     return ans;
 }
 
@@ -171,7 +172,7 @@ void saveToken(int                     line ,
     Token                   token ,
     std::vector<TokenInfo>& tokenvector = tokens) {
     if (lexeme != " " && lexeme != ";" && lexeme != "," && lexeme != "{" &&
-        lexeme != "(" && lexeme != "}" && lexeme != ")")
+        lexeme != "(" && lexeme != "}" && lexeme != ")" && lexeme != "+" && lexeme != "-" && lexeme != "*")
         column = column - lexeme.size();
     tokenvector.push_back({ line, column, lexeme, token });
 }
@@ -255,7 +256,6 @@ void findToken(char& c , std::vector<TokenInfo>& tokens) {
                     else {
                         saveToken(lineCounter , columnCounter , word , tok_bop ,
                             tokens);
-                        c = getchar(is);
                     }
                 }
                 else if (word == "<") {
@@ -344,12 +344,21 @@ void findToken(char& c , std::vector<TokenInfo>& tokens) {
                 else {
                     // std::cout << c << "\n";
                     std::string word = "";
-                    while (!isdelemiter(c)) {
+                    if (isdelemiter(c)) {
                         word += c;
+                        saveToken(lineCounter , columnCounter , word , sort(word) ,
+                            tokens);
                         c = getchar(is);
                     }
-                    saveToken(lineCounter , columnCounter , word , sort(word) ,
-                        tokens);
+                    else {
+                        while (!isdelemiter(c)) {
+                            word += c;
+                            c = getchar(is);
+                        }
+                        saveToken(lineCounter , columnCounter , word , sort(word) ,
+                            tokens);
+                    }
+
                 }
             }
         }
