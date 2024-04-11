@@ -58,8 +58,8 @@ const std::string assign_operators[] = {
     "=",
 };
 
-std::string   inputFile = "../Data/input.txt";
-std::string   outputFile = "../Data/out.out";
+std::string   inputFile = "../Data/raw_code.txt";
+std::string   outputFile = "../Data/token.out";
 std::ifstream is = std::ifstream(inputFile);
 std::ofstream os = std::ofstream(outputFile);
 
