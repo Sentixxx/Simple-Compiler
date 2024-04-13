@@ -1,6 +1,7 @@
 *.class
 
 # compiled file
+Parser/parser
 Lexer/lexer
 
 # output file
