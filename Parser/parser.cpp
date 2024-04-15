@@ -1,16 +1,19 @@
 #include "../Common/token.h"
 #include <fstream>
 #include <iostream>
+#include <vector>
 
 std::string   inputFile  = "../Data/lexer_token.out";
 std::string   outputFile = "../Data/parser_list.out";
 std::ifstream is         = std::ifstream(inputFile);
 std::ofstream os         = std::ofstream(outputFile);
 
+bool read_flag = true;
+
 TokenInfo readToken(std::ifstream& in)
 {
     if (in.eof())
-        exit(0);
+        read_flag = false;
     TokenInfo token;
     int       token_type;
     in >> token.line >> token.column >> token.lexeme >> token_type;
@@ -18,11 +21,6 @@ TokenInfo readToken(std::ifstream& in)
     return token;
 }
 
-int main()
-{
-    while (1) {
-        TokenInfo t = readToken(is);
-        std::cout << t.line << " " << t.column << " " << t.lexeme << " "
-                  << t.token << std::endl;
-    }
-}
+std::vector<TokenInfo> token_list;
+
+int main() {}
