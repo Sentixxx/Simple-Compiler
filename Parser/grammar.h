@@ -1,9 +1,11 @@
 // grammar.h
 #ifndef GRAMMAR_H
 #define GRAMMAR_H
+#include <algorithm>
 #include <set>
 #include <string>
 #include <unordered_map>
+
 #include <vector>
 #define EPSILON r3315u9heiugfha
 class Grammar {
@@ -11,7 +13,47 @@ class Grammar {
     std::unordered_map<std::string, std::vector<std::vector<std::string>>> list;
     std::set<std::string>                                                  T;
     std::set<std::string>                                                  NT;
+    std::vector<std::pair<std::string, std::vector<std::string>>>          P;
+    std::set<std::string>                                  NULLABLE;
+    std::unordered_map<std::string, std::set<std::string>> first;
+    std::unordered_map<int, std::set<std::string>>         first_s;
+    std::unordered_map<std::string, std::set<std::string>> follow;
+
     Grammar()
+    {
+        testGrammar();
+        // initGrammar();
+        initTerminals();
+        initNonTerminals();
+        initNullable();
+        initFirst();
+        initFollow();
+    }
+    void testGrammar()
+    {
+        list["Z"] = {std::vector<std::string>{"d"},
+                     std::vector<std::string>{"X", "Y", "Z"}};
+        list["Y"] = {std::vector<std::string>{"c"},
+                     std::vector<std::string>{"EPSILON"}};
+        list["X"] = {std::vector<std::string>{"Y"},
+                     std::vector<std::string>{"a"}};
+    }
+    bool merge(std::set<std::string>& a, std::set<std::string>& b)
+    {
+        int presize = a.size();
+        std::set_union(a.begin(), a.end(), b.begin(), b.end(),
+                       std::inserter(a, a.begin()));
+        int aftersize = a.size();
+        return (presize != aftersize);
+    }
+    bool merge(std::set<std::string>& a, std::string& b)
+    {
+        int presize = a.size();
+        a.insert(b);
+        int aftersize = a.size();
+        return (presize != aftersize);
+    }
+    void initGrammar()
     {
         /***程序：由0个或多个全局变量或函数组成***/
         list["Program"]    = {std::vector<std::string>{"ExtDefList"}};
@@ -22,7 +64,9 @@ class Grammar {
         list["ExtDefRest"] = {std::vector<std::string>{",", "id", "ExtDefRest"},
                               std::vector<std::string>{"EPSILON"}};
         // 实验一加入了string类
-        list["TYPE"] = {std::vector<std::string>{"int", "float", "string"}};
+        list["TYPE"] = {std::vector<std::string>{"int"},
+                        std::vector<std::string>{"float"},
+                        std::vector<std::string>{"string"}};
         /***函数头定义***/
         list["FunDec"]  = {std::vector<std::string>{"id", "(", "VarList", ")"}};
         list["VarList"] = {
@@ -107,9 +151,6 @@ class Grammar {
             std::vector<std::string>{"=="},
             // 实验一将<>修改为了!=
             std::vector<std::string>{"!="}};
-
-        findTerminals();
-        findNonTerminals();
     }
     bool hasLeftRecursion()
     {
@@ -122,9 +163,7 @@ class Grammar {
         }
         return false;
     }
-
-    // 判断终结符并加入集合T
-    void findTerminals()
+    void initTerminals()
     {
         for (auto& [key, value] : list) {
             for (auto& production : value) {
@@ -137,12 +176,161 @@ class Grammar {
             }
         }
     }
-
-    void findNonTerminals()
+    void initNonTerminals()
     {
         for (auto& [key, value] : list) {
             if (T.find(key) == T.end())
                 NT.insert(key);
+        }
+    }
+    void initFirst()
+    {
+        bool changed = true;
+        while (changed) {
+            changed = false;
+            for (auto& [key, value] : list) {
+                if (T.find(key) != T.end())
+                    continue;
+                for (auto& production : value) {
+                    for (auto& symbol : production) {
+                        if (T.find(symbol) != T.end()) {
+                            int presize = first[key].size();
+                            first[key].insert(symbol);
+                            int aftersize = first[key].size();
+                            if (presize != aftersize) {
+                                changed = true;
+                            }
+                            break;
+                        }
+                        if (NT.find(symbol) != NT.end()) {
+                            int presize = first[key].size();
+                            std::set_union(
+                                first[key].begin(), first[key].end(),
+                                first[symbol].begin(), first[symbol].end(),
+                                std::inserter(first[key], first[key].begin()));
+                            int aftersize = first[key].size();
+                            if (presize != aftersize) {
+                                changed = true;
+                            }
+                            if (NULLABLE.find(symbol) == NULLABLE.end()) {
+                                break;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+    void initNullable()
+    {
+        bool changed = true;
+        while (changed) {
+            changed = false;
+            for (auto& [key, value] : list) {
+                if (T.find(key) != T.end())
+                    continue;
+                for (auto& production : value) {
+                    if (production[0] == "EPSILON") {
+                        int presize = NULLABLE.size();
+                        NULLABLE.insert(key);
+                        int aftersize = NULLABLE.size();
+                        if (presize != aftersize)
+                            changed = true;
+                        break;
+                    }
+                    bool flag = true;
+                    for (auto& symbol : production) {
+                        if (NULLABLE.find(symbol) == NULLABLE.end()) {
+                            flag = false;
+                            break;
+                        }
+                    }
+                    if (flag) {
+                        int presize = NULLABLE.size();
+                        NULLABLE.insert(key);
+                        int aftersize = NULLABLE.size();
+                        if (presize != aftersize) {
+                            changed = true;
+                        }
+                    }
+                }
+            }
+        }
+    }
+    void initFollow()
+    {
+        bool changed = true;
+        while (changed) {
+            changed = false;
+            for (auto& [key, value] : list) {
+                for (auto& production : value) {
+                    std::set<std::string> temp = follow[key];
+                    for (int i = production.size() - 1; i >= 0; i--) {
+                        if (T.find(production[i]) != T.end()) {
+                            temp.clear();
+                            temp.insert(production[i]);
+                        }
+                        if (NT.find(production[i]) != NT.end()) {
+                            int presize = follow[production[i]].size();
+                            std::set_union(
+                                temp.begin(), temp.end(),
+                                follow[production[i]].begin(),
+                                follow[production[i]].end(),
+                                std::inserter(follow[production[i]],
+                                              follow[production[i]].begin()));
+                            if (NULLABLE.find(production[i]) ==
+                                NULLABLE.end()) {
+                                temp.clear();
+                                temp = first[production[i]];
+                            }
+                            else {
+                                std::set_union(
+                                    temp.begin(), temp.end(),
+                                    first[production[i]].begin(),
+                                    first[production[i]].end(),
+                                    std::inserter(temp, temp.begin()));
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+    void initP()
+    {
+        for (auto& [key, value] : list) {
+            for (auto& production : value) {
+                P.push_back(std::make_pair(key, production));
+            }
+        }
+    }
+    void initFirstS()
+    {
+        initP();
+        bool changed = true;
+        while (changed) {
+            changed = false;
+            for (int i = 0; i < P.size(); i++) {
+                for (auto& symbol : P[i].second) {
+                    if (T.find(symbol) != T.end()) {
+                        int presize = first_s[i].size();
+                        first_s[i].insert(symbol);
+                        int aftersize = first_s[i].size();
+                        if (presize != aftersize) {
+                            changed = true;
+                        }
+                        break;
+                    }
+                    if (NT.find(symbol) != NT.end()) {
+                        if (merge(first_s[i], first[symbol])) {
+                            changed = true;
+                        }
+                        if (NULLABLE.find(symbol) == NULLABLE.end()) {
+                            break;
+                        }
+                    }
+                }
+            }
         }
     }
 };
