@@ -3,6 +3,8 @@
 #define TOKEN_H
 
 #include <string>
+#include <iostream>
+#include <iomanip> 
 
 enum Token {
 	Error = 0 ,
@@ -47,10 +49,18 @@ public:
 
 class TokenList {
 	bool read_flag;
+	const std::string tok_transformed[11] = {
+	"Error",           "identifier",     "reserved word",
+	"string",          "number",         "float",
+	"delimiter",       "basic operator", "compare operator",
+	"assign operator", "comment",
+	};
 public:
 	std::vector<TokenInfo> tok_lis;
 
-	TokenList() : read_flag(true) {};
+	TokenList() : read_flag(true) {
+		tok_lis.clear();
+	};
 	void read(std::ifstream& in) {
 		while (read_flag) {
 			if (in.eof())
@@ -60,6 +70,54 @@ public:
 			in >> token.line >> token.column >> token.lexeme >> token_type;
 			token.token = static_cast<Token>(token_type);
 			tok_lis.push_back(token);
+		}
+	}
+	void saveToken(int                     line ,
+		int                     column ,
+		std::string             lexeme ,
+		Token                   token ,
+		std::vector<TokenInfo>& tok_lis) {
+		if (lexeme != " " && lexeme != ";" && lexeme != "," && lexeme != "{" &&
+			lexeme != "(" && lexeme != "}" && lexeme != ")" && lexeme != "+" &&
+			lexeme != "-" && lexeme != "*")
+			column = column - lexeme.size();
+		tok_lis.push_back({ line, column, lexeme, token });
+	}
+	void print(std::ostream& out = std::cout) {
+		size_t i = 0;
+		for (const auto& token : tok_lis) {
+			out << token.line << " " << token.column << " " << token.lexeme << " "
+				<< token.token;
+			i++;
+			if (i != tok_lis.size())
+				out << "\n";
+		}
+	}
+	int getMaxLength() {
+		int maxLength = 0;
+		for (const auto& token : tok_lis) {
+			int length = token.lexeme.length();
+			if (length > maxLength) {
+				maxLength = length;
+			}
+		}
+		return maxLength;
+	}
+	void format_print(std::ostream& out = std::cout) {
+		size_t i = 0;
+		for (const auto& token : tok_lis) {
+			if (token.token == Error) {
+				out << "Error\n";
+			}
+			else {
+				out << "(" << std::setw(16) << tok_transformed[token.token] << ", "
+					<< std::setw(getMaxLength() + 1) << token.lexeme << ", "
+					<< std::setw(4) << token.line << ", " << std::setw(4)
+					<< token.column << ")";
+			}
+			i++;
+			if (i != tok_lis.size())
+				out << "\n";
 		}
 	}
 };
