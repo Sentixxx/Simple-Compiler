@@ -36,6 +36,12 @@ public:
 	Token       token;
 	TokenInfo() : line(0) , column(0) , lexeme("") , token(Error) {}
 	TokenInfo(int line , int column , std::string lexeme , Token token) : line(line) , column(column) , lexeme(lexeme) , token(token) {}
+
+	bool operator==(const TokenInfo& other) const {
+		if (token >= 2 && token <= 4)
+			return token == other.token;
+		return lexeme == other.lexeme;
+	}
 };
 
 #endif  // TOKEN_H
