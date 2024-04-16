@@ -28,6 +28,7 @@ class Grammar {
         initNullable();
         initFirst();
         initFollow();
+        initFirstS();
     }
     void testGrammar()
     {
@@ -46,7 +47,7 @@ class Grammar {
         int aftersize = a.size();
         return (presize != aftersize);
     }
-    bool merge(std::set<std::string>& a, std::string& b)
+    bool merge(std::set<std::string>& a, const std::string& b)
     {
         int presize = a.size();
         a.insert(b);
@@ -194,22 +195,13 @@ class Grammar {
                 for (auto& production : value) {
                     for (auto& symbol : production) {
                         if (T.find(symbol) != T.end()) {
-                            int presize = first[key].size();
-                            first[key].insert(symbol);
-                            int aftersize = first[key].size();
-                            if (presize != aftersize) {
+                            if (merge(first[key], symbol)) {
                                 changed = true;
                             }
                             break;
                         }
                         if (NT.find(symbol) != NT.end()) {
-                            int presize = first[key].size();
-                            std::set_union(
-                                first[key].begin(), first[key].end(),
-                                first[symbol].begin(), first[symbol].end(),
-                                std::inserter(first[key], first[key].begin()));
-                            int aftersize = first[key].size();
-                            if (presize != aftersize) {
+                            if (merge(first[key], first[symbol])) {
                                 changed = true;
                             }
                             if (NULLABLE.find(symbol) == NULLABLE.end()) {
@@ -231,10 +223,7 @@ class Grammar {
                     continue;
                 for (auto& production : value) {
                     if (production[0] == "EPSILON") {
-                        int presize = NULLABLE.size();
-                        NULLABLE.insert(key);
-                        int aftersize = NULLABLE.size();
-                        if (presize != aftersize)
+                        if (merge(NULLABLE, key))
                             changed = true;
                         break;
                     }
@@ -246,10 +235,7 @@ class Grammar {
                         }
                     }
                     if (flag) {
-                        int presize = NULLABLE.size();
-                        NULLABLE.insert(key);
-                        int aftersize = NULLABLE.size();
-                        if (presize != aftersize) {
+                        if (merge(NULLABLE, key)) {
                             changed = true;
                         }
                     }
@@ -271,24 +257,16 @@ class Grammar {
                             temp.insert(production[i]);
                         }
                         if (NT.find(production[i]) != NT.end()) {
-                            int presize = follow[production[i]].size();
-                            std::set_union(
-                                temp.begin(), temp.end(),
-                                follow[production[i]].begin(),
-                                follow[production[i]].end(),
-                                std::inserter(follow[production[i]],
-                                              follow[production[i]].begin()));
+                            if (merge(follow[production[i]], temp)) {
+                                changed = true;
+                            }
                             if (NULLABLE.find(production[i]) ==
                                 NULLABLE.end()) {
                                 temp.clear();
                                 temp = first[production[i]];
                             }
                             else {
-                                std::set_union(
-                                    temp.begin(), temp.end(),
-                                    first[production[i]].begin(),
-                                    first[production[i]].end(),
-                                    std::inserter(temp, temp.begin()));
+                                merge(temp, first[production[i]]);
                             }
                         }
                     }
@@ -304,33 +282,27 @@ class Grammar {
             }
         }
     }
+    void calculateFirstS(int i)
+    {
+        for (auto& symbol : P[i].second) {
+            if (T.find(symbol) != T.end()) {
+                merge(first_s[i], symbol);
+                return;
+            }
+            if (NT.find(symbol) != NT.end()) {
+                merge(first_s[i], first[symbol]);
+                if (NULLABLE.find(symbol) == NULLABLE.end()) {
+                    return;
+                }
+            }
+        }
+        merge(first_s[i], follow[P[i].first]);
+    }
     void initFirstS()
     {
         initP();
-        bool changed = true;
-        while (changed) {
-            changed = false;
-            for (int i = 0; i < P.size(); i++) {
-                for (auto& symbol : P[i].second) {
-                    if (T.find(symbol) != T.end()) {
-                        int presize = first_s[i].size();
-                        first_s[i].insert(symbol);
-                        int aftersize = first_s[i].size();
-                        if (presize != aftersize) {
-                            changed = true;
-                        }
-                        break;
-                    }
-                    if (NT.find(symbol) != NT.end()) {
-                        if (merge(first_s[i], first[symbol])) {
-                            changed = true;
-                        }
-                        if (NULLABLE.find(symbol) == NULLABLE.end()) {
-                            break;
-                        }
-                    }
-                }
-            }
+        for (int i = 0; i < P.size(); i++) {
+            calculateFirstS(i);
         }
     }
 };
