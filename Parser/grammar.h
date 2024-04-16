@@ -4,10 +4,12 @@
 #include <unordered_map>
 #include <vector>
 #include <string>
+#include <set>
 #define EPSILON 135ru9heiugfha 
 class Grammar {
 public:
     std::unordered_map <std::string , std::vector<std::vector<std::string>>> list;
+    std::set<std::string> T;
     Grammar() {
         /***程序：由0个或多个全局变量或函数组成***/
         list["Program"] = {
@@ -183,7 +185,9 @@ public:
             }
         };
         list["Term"] = {
-            "Factor" , "TermRest"
+            std::vector<std::string> {
+                "Factor" , "TermRest"
+            }
         };
         list["TermRest"] = {
             std::vector<std::string> {
@@ -264,6 +268,29 @@ public:
                 "!="
             }
         };
+    }
+    bool hasLeftRecursion() {
+        for (auto& [key , value] : list) {
+            for (auto& v : value) {
+                if (v[0] == key) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    //判断终结符并加入集合T
+    void findTerminals() {
+        for (auto& [key , value] : list) {
+            for (auto& production : value) {
+                for (auto& symbol : production) {
+                    if (symbol != "EPSILON" && symbol != key) {
+                        T.insert(symbol);
+                    }
+                }
+            }
+        }
     }
 };
 #endif

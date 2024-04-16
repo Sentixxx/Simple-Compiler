@@ -3,6 +3,7 @@
 # compiled file
 Parser/parser
 Lexer/lexer
+Parser/grammar
 
 # output file
 *.out
