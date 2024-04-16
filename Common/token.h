@@ -44,4 +44,25 @@ public:
 	}
 };
 
-#endif  // TOKEN_H
+
+class TokenList {
+	bool read_flag;
+public:
+	std::vector<TokenInfo> tok_lis;
+
+	TokenList() : read_flag(true) {};
+	void read(std::ifstream& in) {
+		while (read_flag) {
+			if (in.eof())
+				read_flag = false;
+			TokenInfo token;
+			int       token_type;
+			in >> token.line >> token.column >> token.lexeme >> token_type;
+			token.token = static_cast<Token>(token_type);
+			tok_lis.push_back(token);
+		}
+	}
+};
+
+#endif  
+// TOKEN_H

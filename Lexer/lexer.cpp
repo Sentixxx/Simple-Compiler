@@ -6,30 +6,6 @@
 #include <sstream>
 #include <vector>
 
-// enum Token {
-//     Error = 0 ,
-//     // 标识符 identifier
-//     tok_identifier = 1 ,
-//     // 保留字 reserved word
-//     tok_rw = 2 ,
-//     // 字符串常量 string constant
-//     tok_str = 3 ,
-//     // 数字常量 number constant
-//     tok_num = 4 ,
-//     // 小数常量 float constant
-//     tok_flt = 5 ,
-//     // 界符 delimiter
-//     tok_del = 6 ,
-//     // 四则运算符 basic operator
-//     tok_bop = 7 ,
-//     // 比较运算符 compare operator
-//     tok_cop = 8 ,
-//     // 赋值运算符 assign operator
-//     tok_aop = 9 ,
-//     // 注释 comment
-//     tok_comment = 10 ,
-// };
-
 const std::string tok_transformed[] = {
     "Error",           "identifier",     "reserved word",
     "string",          "number",         "float",
@@ -58,16 +34,15 @@ const std::string assign_operators[] = {
     "=",
 };
 
-std::string   inputFile  = "../Data/raw_code.txt";
+std::string   inputFile = "../Data/raw_code.txt";
 std::string   outputFile = "../Data/lexer_token.out";
-std::ifstream is         = std::ifstream(inputFile);
-std::ofstream os         = std::ofstream(outputFile);
+std::ifstream is = std::ifstream(inputFile);
+std::ofstream os = std::ofstream(outputFile);
 
-int lineCounter   = 0;
+int lineCounter = 0;
 int columnCounter = 0;
 
-char getchar(std::istream& stream)
-{
+char getchar(std::istream& stream) {
     char ans = stream.get();
     if (ans != EOF)
         columnCounter++;
@@ -83,8 +58,7 @@ char getchar(std::istream& stream)
 
 std::vector<TokenInfo> tokens;
 
-Token handleAlpha(std::string& word)
-{
+Token handleAlpha(std::string& word) {
     if (word.size() > 32) {
         return Error;
     }
@@ -107,8 +81,7 @@ Token handleAlpha(std::string& word)
     return tok_identifier;
 }
 
-Token handleOperator(std::string& word)
-{
+Token handleOperator(std::string& word) {
     for (int i = 0; i < 10; i++) {
         if (word == basic_operators[i]) {
             return tok_bop;
@@ -123,8 +96,7 @@ Token handleOperator(std::string& word)
     return Error;
 }
 
-Token handleDigit(std::string& word)
-{
+Token handleDigit(std::string& word) {
     bool flt = false;
     if (word[word.length() - 1] == '.')
         return Error;
@@ -156,8 +128,7 @@ Token handleDigit(std::string& word)
         return tok_num;
 }
 
-Token sort(std::string& word)
-{
+Token sort(std::string& word) {
     // std::cout << word[0];
     if (isdigit(word[0])) {
         return handleDigit(word);
@@ -171,43 +142,39 @@ Token sort(std::string& word)
     }
 }
 
-void saveToken(int                     line,
-               int                     column,
-               std::string             lexeme,
-               Token                   token,
-               std::vector<TokenInfo>& tokenvector = tokens)
-{
+void saveToken(int                     line ,
+    int                     column ,
+    std::string             lexeme ,
+    Token                   token ,
+    std::vector<TokenInfo>& tokenvector = tokens) {
     if (lexeme != " " && lexeme != ";" && lexeme != "," && lexeme != "{" &&
         lexeme != "(" && lexeme != "}" && lexeme != ")" && lexeme != "+" &&
         lexeme != "-" && lexeme != "*")
         column = column - lexeme.size();
-    tokenvector.push_back({line, column, lexeme, token});
+    tokenvector.push_back({ line, column, lexeme, token });
 }
 
-void newLine()
-{
+void newLine() {
     lineCounter++;
     columnCounter = 0;
 }
 
-std::string convertToVisible(std::string& str)
-{
+std::string convertToVisible(std::string& str) {
     std::string visibleStr = "";
     for (char c : str) {
         switch (c) {
-            case '\n': visibleStr += "\\n"; break;
-            case '\r': visibleStr += "\\r"; break;
-            case '\t': visibleStr += "\\t"; break;
-            case '\v': visibleStr += "\\v"; break;
-            case '\f': visibleStr += "\\f"; break;
-            default: visibleStr += c; break;
+        case '\n': visibleStr += "\\n"; break;
+        case '\r': visibleStr += "\\r"; break;
+        case '\t': visibleStr += "\\t"; break;
+        case '\v': visibleStr += "\\v"; break;
+        case '\f': visibleStr += "\\f"; break;
+        default: visibleStr += c; break;
         }
     }
     return visibleStr;
 }
 
-bool isdelemiter(char c)
-{
+bool isdelemiter(char c) {
     if (c == ' ' || c == '\n' || c == '\t' || c == ';' || c == ',' ||
         c == ')' || c == '(' || c == '{' || c == '}' || c == '=' || c == '+' ||
         c == '-' || c == '/' || c == '*' || c == '>' || c == '<' || c == EOF ||
@@ -216,10 +183,9 @@ bool isdelemiter(char c)
     return false;
 }
 
-void findToken(char& c, std::vector<TokenInfo>& tokens)
-{
+void findToken(char& c , std::vector<TokenInfo>& tokens) {
     if (isalpha(c) || (c == '_')) {
-        int         n    = 0;
+        int         n = 0;
         std::string word = "";
         while (!isdelemiter(c)) {
             if (n < 32) {
@@ -228,7 +194,7 @@ void findToken(char& c, std::vector<TokenInfo>& tokens)
             }
             c = getchar(is);
         }
-        saveToken(lineCounter, columnCounter, word, sort(word), tokens);
+        saveToken(lineCounter , columnCounter , word , sort(word) , tokens);
     }
     else {
         if (isdigit(c)) {
@@ -237,7 +203,7 @@ void findToken(char& c, std::vector<TokenInfo>& tokens)
                 word += c;
                 c = getchar(is);
             }
-            saveToken(lineCounter, columnCounter, word, sort(word), tokens);
+            saveToken(lineCounter , columnCounter , word , sort(word) , tokens);
         }
         else {
             if (c == '/' || c == '=' || c == '>' || c == '<') {
@@ -265,48 +231,48 @@ void findToken(char& c, std::vector<TokenInfo>& tokens)
                         c = getchar(is);
                     }
                     else {
-                        saveToken(lineCounter, columnCounter, word, tok_bop,
-                                  tokens);
+                        saveToken(lineCounter , columnCounter , word , tok_bop ,
+                            tokens);
                     }
                 }
                 else if (word == "<") {
                     if (c == '=') {
                         word += c;
-                        saveToken(lineCounter, columnCounter, word, tok_cop,
-                                  tokens);
+                        saveToken(lineCounter , columnCounter , word , tok_cop ,
+                            tokens);
                         c = getchar(is);
                     }
                     else {
-                        saveToken(lineCounter, columnCounter, word, tok_cop,
-                                  tokens);
-                        findToken(c, tokens);
+                        saveToken(lineCounter , columnCounter , word , tok_cop ,
+                            tokens);
+                        findToken(c , tokens);
                     }
                 }
                 else if (word == "=") {
                     if (c == '=') {
                         word += c;
                         // std::cout << c << "\n";
-                        saveToken(lineCounter, columnCounter, word, tok_cop,
-                                  tokens);
+                        saveToken(lineCounter , columnCounter , word , tok_cop ,
+                            tokens);
                         c = getchar(is);
                     }
                     else {
-                        saveToken(lineCounter, columnCounter, word, tok_aop,
-                                  tokens);
-                        findToken(c, tokens);
+                        saveToken(lineCounter , columnCounter , word , tok_aop ,
+                            tokens);
+                        findToken(c , tokens);
                     }
                 }
                 else if (word == ">") {
                     if (c == '=') {
                         word += c;
-                        saveToken(lineCounter, columnCounter, word, tok_cop,
-                                  tokens);
+                        saveToken(lineCounter , columnCounter , word , tok_cop ,
+                            tokens);
                         c = getchar(is);
                     }
                     else {
-                        saveToken(lineCounter, columnCounter, word, tok_cop,
-                                  tokens);
-                        findToken(c, tokens);
+                        saveToken(lineCounter , columnCounter , word , tok_cop ,
+                            tokens);
+                        findToken(c , tokens);
                     }
                 }
             }
@@ -316,13 +282,13 @@ void findToken(char& c, std::vector<TokenInfo>& tokens)
                 c = getchar(is);
                 if (c == '=') {
                     word += c;
-                    saveToken(lineCounter, columnCounter, word, tok_cop,
-                              tokens);
+                    saveToken(lineCounter , columnCounter , word , tok_cop ,
+                        tokens);
                     c = getchar(is);
                 }
                 else {
-                    saveToken(lineCounter, columnCounter, word, Error, tokens);
-                    findToken(c, tokens);
+                    saveToken(lineCounter , columnCounter , word , Error , tokens);
+                    findToken(c , tokens);
                     // std::cout << c << "\n";
                     //  c = getchar(is);
                 }
@@ -333,23 +299,23 @@ void findToken(char& c, std::vector<TokenInfo>& tokens)
                     return;
                 }
                 else if (c == ')' || c == '(' || c == ';' || c == ',' ||
-                         c == '{' || c == '}') {
+                    c == '{' || c == '}') {
                     std::string word = "";
                     word += c;
-                    saveToken(lineCounter, columnCounter, word, tok_del,
-                              tokens);
+                    saveToken(lineCounter , columnCounter , word , tok_del ,
+                        tokens);
                     c = getchar(is);
                 }
                 else if (c == '"') {
-                    c                = getchar(is);
-                    std::string word = std::string(1, c);
-                    int         line = lineCounter, column = columnCounter;
+                    c = getchar(is);
+                    std::string word = std::string(1 , c);
+                    int         line = lineCounter , column = columnCounter;
                     while (c != '"' && c != EOF) {
                         word += c;
                         c = getchar(is);
                     }
-                    saveToken(line, column + word.length() - 1, word, tok_str,
-                              tokens);
+                    saveToken(line , column + word.length() - 1 , word , tok_str ,
+                        tokens);
                     c = getchar(is);
                 }
                 else {
@@ -357,8 +323,8 @@ void findToken(char& c, std::vector<TokenInfo>& tokens)
                     std::string word = "";
                     if (isdelemiter(c)) {
                         word += c;
-                        saveToken(lineCounter, columnCounter, word, sort(word),
-                                  tokens);
+                        saveToken(lineCounter , columnCounter , word , sort(word) ,
+                            tokens);
                         c = getchar(is);
                     }
                     else {
@@ -366,8 +332,8 @@ void findToken(char& c, std::vector<TokenInfo>& tokens)
                             word += c;
                             c = getchar(is);
                         }
-                        saveToken(lineCounter, columnCounter, word, sort(word),
-                                  tokens);
+                        saveToken(lineCounter , columnCounter , word , sort(word) ,
+                            tokens);
                     }
                 }
             }
@@ -375,8 +341,7 @@ void findToken(char& c, std::vector<TokenInfo>& tokens)
     }
 }
 
-int Scanner(std::vector<TokenInfo>& tokens)
-{
+int Scanner(std::vector<TokenInfo>& tokens) {
     lineCounter = 1;
 
     char c = getchar(is);
@@ -413,15 +378,14 @@ int Scanner(std::vector<TokenInfo>& tokens)
                 c = getchar(is);
                 continue;
             }
-            findToken(c, tokens);
+            findToken(c , tokens);
         }
     }
 
     return 1;
 }
 
-int getMaxLength()
-{
+int getMaxLength() {
     int maxLength = 0;
     for (const auto& token : tokens) {
         int length = token.lexeme.length();
@@ -432,8 +396,7 @@ int getMaxLength()
     return maxLength;
 }
 
-void print(std::ostream& out = std::cout)
-{
+void print(std::ostream& out = std::cout) {
     size_t i = 0;
     for (const auto& token : tokens) {
         // if (token.token == Error) {
@@ -454,11 +417,10 @@ void print(std::ostream& out = std::cout)
     }
 }
 
-int main(int argc, char* argv[])
-{
+int main(int argc , char* argv[]) {
     if (argc > 1) {
         inputFile = argv[1];
-        is        = std::ifstream(inputFile);
+        is = std::ifstream(inputFile);
     }
     Scanner(tokens);
     print(os);

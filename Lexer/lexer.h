@@ -8,14 +8,6 @@
 #include "../Common/token.h"
 
 
-
-extern const std::string tok_transformed[];
-
-extern const std::string reservedWords[];
-extern const std::string basic_operators[];
-extern const std::string compare_operators[];
-extern const std::string assign_operators[];
-
 extern std::vector<TokenInfo> tokens;
 extern bool                   comment_flag;
 
