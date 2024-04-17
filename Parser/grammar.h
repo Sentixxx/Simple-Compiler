@@ -9,7 +9,6 @@
 #include <unordered_map>
 
 #include <vector>
-#define EPSILON r3315u9heiugfha
 class Grammar {
 public:
     std::unordered_map<std::string , std::vector<std::vector<std::string>>> list;
@@ -81,8 +80,7 @@ public:
             std::vector<std::string>{",", "TYPE", "id", "VarListRest"},
             std::vector<std::string>{"EPSILON"} };
         /*** CompSt：复合语句块***/
-        list["CompSt"] = { std::vector<std::string>{"{", "StmtList", "}"},
-                            std::vector<std::string>{"EPSILON"} };
+        list["CompSt"] = { std::vector<std::string>{"{", "StmtList", "}"} };
         list["StmtList"] = { std::vector<std::string>{"Stmt", "StmtList"},
                             std::vector<std::string>{"EPSILON"} };
         /*** Stmt：语句***/
@@ -90,8 +88,7 @@ public:
             std::vector<std::string>{
             "ConditionalStmt"},
             std::vector<std::string>{"LoopStmt"},
-            std::vector<std::string>{ "CallStmt"},
-            std::vector<std::string>{"AssignmentStmt"},
+            std::vector<std::string>{"idStmt"},
             std::vector<std::string>{"ReturnStmt"},
             std::vector<std::string>{ "BreakStmt"},
             std::vector<std::string>{ "LocalVariableDeclaration"},std::vector<std::string>{ "CompSt"},
@@ -104,8 +101,15 @@ public:
             std::vector<std::string>{",", "id", "LocalVariableDeclarationRest"},
             std::vector<std::string>{"EPSILON"} };
         /***函数调用语句***/
+        list["idStmt"] = {
+            std::vector<std::string>{"id", "idStmtRest"}
+        };
+        list["idStmtRest"] = {
+            std::vector<std::string>{"Callstmt"},
+            std::vector<std::string>{"AssignmentStmt"}
+        };
         list["CallStmt"] = {
-            std::vector<std::string>{"id", "(", "ArgList", ")", ";"} };
+            std::vector<std::string>{"(", "ArgList", ")", ";"} };
         /***实参列表***/
         list["ArgList"] = { std::vector<std::string>{"Exp", "ArgListRest"},
                                std::vector<std::string>{"EPSILON"} };
@@ -114,12 +118,12 @@ public:
             std::vector<std::string>{"EPSILON"} };
         /***赋值语句***/
         list["AssignmentStmt"] = {
-            std::vector<std::string>{"id", "=", "Exp", ";"} };
+            std::vector<std::string>{"=", "Exp", ";"} };
         /***条件语句***/
         list["ConditionalStmt"] = { std::vector<std::string>{
             "if", "(", "ConditionalExp", ")", "Stmt", "ConditionalStmtRest"} };
         list["ConditionalStmtRest"] = { std::vector<std::string>{"else", "Stmt"},
-                                       std::vector<std::string>{"EPSILON"} };
+        std::vector<std::string>{"EPSILON"} };
         /***循环语句***/
         list["LoopStmt"] = { std::vector<std::string>{
             "while", "(", "ConditionalExp", ")", "Stmt"} };
@@ -331,6 +335,14 @@ public:
             throw "out of P range!";
         }
         return this->P[i].second;
+    }
+    void handleRecursion() {
+        std::vector<std::string> A;
+        for (auto& value : NT) {
+            A.push_back(value);
+        }
+        std::unordered_map<std::string , std::vector<std::vector<std::string>>> newlist;
+
     }
 };
 #endif
