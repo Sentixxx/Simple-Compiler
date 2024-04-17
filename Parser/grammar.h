@@ -105,7 +105,7 @@ class Grammar {
             std::vector<std::string>{"EPSILON"}};
         /***函数调用语句***/
         list["idStmt"]     = {std::vector<std::string>{"id", "idStmtRest"}};
-        list["idStmtRest"] = {std::vector<std::string>{"Callstmt"},
+        list["idStmtRest"] = {std::vector<std::string>{"CallStmt"},
                               std::vector<std::string>{"AssignmentStmt"}};
         list["CallStmt"] = {std::vector<std::string>{"(", "ArgList", ")", ";"}};
         /***实参列表***/

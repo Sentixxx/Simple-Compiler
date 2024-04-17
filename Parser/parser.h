@@ -4,6 +4,7 @@
 #ifndef PARSER_H
 #define PARSER_H
 
+#include "../Common/compiler.h"
 #include "../Common/error.h"
 #include "../Common/token.h"
 #include "grammar.h"
@@ -11,13 +12,7 @@
 #include <iostream>
 #include <string>
 
-class Parser {
-  private:
-    std::string   inputFile;
-    std::string   outputFile;
-    std::ifstream is;
-    std::ofstream os;
-
+class Parser : public Module {
   public:
     Parser()
     {
@@ -26,14 +21,7 @@ class Parser {
         this->is         = std::ifstream(inputFile);
         this->os         = std::ofstream(outputFile);
     }
-    std::ifstream& getIs()
-    {
-        return this->is;
-    }
-    std::ofstream& getOs()
-    {
-        return this->os;
-    }
+
     std::pair<std::string, std::string> handleToken(int i, TokenList& TL)
     {
         std::pair<std::string, std::string> token = TL.getTokenType(i);
@@ -73,8 +61,9 @@ class Parser {
                     std::cout << s.top() << "-->";
                     s.pop();
                     auto table_unit = gram.table[{t, handleToken(i, TL).first}];
-                    // std::cout << handleToken(i, TL).first << "\n";
-                    // std::cout << "size:" << table_unit.size() << " ";
+                    // std::cout << handleToken(i, TL).first <<
+                    // "\n"; std::cout << "size:" <<
+                    // table_unit.size() << " ";
                     if (table_unit.size() > 1 || table_unit.size() == 0) {
                         std::cerr << table_unit.size() << ", "
                                   << handleToken(i, TL).first << "\n";
@@ -122,6 +111,24 @@ class Parser {
             }
             std::cout << std::endl;
         }
+    }
+};
+class TopParser : protected Module {
+  public:
+    TopParser()
+    {
+        this->inputFile  = "../Data/lexer_token.out";
+        this->outputFile = "../Data/parser_list.out";
+        this->is         = std::ifstream(inputFile);
+        this->os         = std::ofstream(outputFile);
+    }
+    std::ifstream& getIs()
+    {
+        return this->is;
+    }
+    std::ofstream& getOs()
+    {
+        return this->os;
     }
 };
 #endif  // PARSER_H
