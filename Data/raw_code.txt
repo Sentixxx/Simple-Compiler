@@ -16,8 +16,11 @@ int max(float a,int b)
             a=1;
 }
 
-int hello()
-{
+int hello(int a, int b) {
+    if(a == b) {
+        
+    }
+
     max(a,b);
     return a;
 }

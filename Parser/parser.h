@@ -114,6 +114,9 @@ class Parser : public Module {
     }
 };
 class TopParser : protected Module {
+  private:
+    int i = 0;
+
   public:
     TopParser()
     {
@@ -129,6 +132,21 @@ class TopParser : protected Module {
     std::ofstream& getOs()
     {
         return this->os;
+    }
+    void parseExtDefList() {}
+    void parseProgram()
+    {
+        parseExtDefList();
+    }
+    void lparse(TokenList& TL, Grammar& G)
+    {
+        try {
+            parseProgram();
+        }
+        catch (const std::string e) {
+            std::cerr << e << "\n";
+            std::cout << "NO";
+        }
     }
 };
 #endif  // PARSER_H
