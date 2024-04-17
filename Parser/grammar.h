@@ -337,6 +337,10 @@ class Grammar {
     {
         return NT.find(s) != NT.end();
     }
+    bool isNullable(std::string s)
+    {
+        return NULLABLE.find(s) != NULLABLE.end();
+    }
     std::string findProductionL(int i)
     {
         if (i >= P.size()) {

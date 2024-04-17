@@ -96,14 +96,19 @@ class Parser {
                     // std::cout << "\n";
                 }
             }
-            if (i == TL.tok_lis.size()) {
-                std::cout << "Y";
+            while (!s.empty() && gram.isNullable(s.top())) {
+                // std::cerr << s.top() << "\n";
+                s.pop();
+            }
+            if (i == TL.tok_lis.size() && s.empty()) {
+                std::cout << "YES";
                 return;
             }
-            std::cout << "N";
+            std::cout << "NO";
         }
         catch (const std::string errorMessage) {
             std::cerr << "Caught exception: " << errorMessage << std::endl;
+            std::cout << "NO";
         }
     }
     void show(std::string L, Grammar& G, std::string t)
