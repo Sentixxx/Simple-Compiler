@@ -10,81 +10,99 @@
 #include <fstream>
 #include <iostream>
 #include <string>
+
 class Parser {
-  private:
+private:
     std::string   inputFile;
     std::string   outputFile;
     std::ifstream is;
     std::ofstream os;
 
-  public:
-    Parser()
-    {
-        this->inputFile  = "../Data/lexer_token.out";
+public:
+    Parser() {
+        this->inputFile = "../Data/lexer_token.out";
         this->outputFile = "../Data/parser_list.out";
-        this->is         = std::ifstream(inputFile);
-        this->os         = std::ofstream(outputFile);
+        this->is = std::ifstream(inputFile);
+        this->os = std::ofstream(outputFile);
     }
-    std::ifstream& getIs()
-    {
+    std::ifstream& getIs() {
         return this->is;
     }
-    std::ofstream& getOs()
-    {
+    std::ofstream& getOs() {
         return this->os;
     }
-    std::pair<std::string, std::string> handleToken(int i, TokenList& TL)
-    {
-        std::pair<std::string, std::string> token = TL.getTokenType(i);
+    std::pair<std::string , std::string> handleToken(int i , TokenList& TL) {
+        std::pair<std::string , std::string> token = TL.getTokenType(i);
         if (token.first == "number")
-            return {"INTC", token.second};
+            return { "INTC", token.second };
         else if (token.first == "float")
-            return {"DECI", token.second};
+            return { "DECI", token.second };
         else if (token.first == "identifier") {
-            return {"id", token.second};
+            return { "id", token.second };
         }
         else {
-            return {token.second, token.second};
+            return { token.second, token.second };
         }
     }
-    void lparse(Grammar& gram, TokenList& TL)
-    {
-        int             i = 0;
-        std::stack<int> s;
-        for (int j = 0; j < gram.P.size(); j++) {
-            if (gram.findProductionL(j) == "Program") {
-                s.push(j);
-                break;
-            }
-        }
-
-        while (i < TL.tok_lis.size() && !s.empty()) {
-            std::string t = gram.findProductionL(s.top());
-            std::cout << t << "\n";
-            if (gram.isTerminal(t)) {
-                if (t == handleToken(i, TL).first) {
-                    i++;
+    void lparse(Grammar& gram , TokenList& TL) {
+        try {
+            int             i = 0;
+            std::stack<std::string> s;
+            s.push("Program");
+            std::cout << TL.tok_lis.size() << "\n";
+            while (i < TL.tok_lis.size() && !s.empty()) {
+                std::string t = s.top();
+                std::cout << t << " " << s.size() << "\n";
+                if (gram.isTerminal(t)) {
+                    std::cout << "handle: " << handleToken(i , TL).first << "\n";
+                    if (t == handleToken(i , TL).first) {
+                        i++;
+                        s.pop();
+                    }
+                    else {
+                        std::cout << "N\n";
+                        return;
+                    }
+                }
+                else if (gram.isNonTerminal(t)) {
+                    std::cout << s.top() << "-->";
                     s.pop();
-                }
-                else {
-                    throw "Syntax Error";
+                    auto table_unit = gram.table[{t , handleToken(i , TL).first}];
+                    std::cout << handleToken(i , TL).first << "\n";
+                    std::cout << "size:" << table_unit.size() << " ";
+                    if (table_unit.size() > 1 || table_unit.size() == 0) {
+                        throw "LL1 Error";
+                    }
+                    auto production = gram.findProductionR(table_unit[0]);
+                    for (int j = production.size() - 1;j >= 0;j--) {
+                        if (production[j] == "EPSILON")
+                            continue;
+                        s.push(production[j]);
+                        std::cout << production[j] << " ";
+                    }
+                    std::cout << "\n";
                 }
             }
-            else if (gram.isNonTerminal(t)) {
-                s.pop();
-                std::cout << t << "-->";
-                for (auto value : gram.table[{t, handleToken(i, TL).first}]) {
-                    std::cout << gram.findProductionL(value) << " ";
-                    s.push(value);
-                }
-                std::cout << "\n";
+            if (i == TL.tok_lis.size()) {
+                std::cout << "Y";
+                return;
             }
+            std::cout << "N";
         }
-        if (i == TL.tok_lis.size()) {
-            std::cout << "Y";
-            return;
+        catch (const char* errorMessage) {
+            std::cerr << "Caught exception: " << errorMessage << std::endl;
         }
-        std::cout << "N";
+    }
+    void show(std::string L , Grammar& G , std::string t) {
+        auto x = G.table[{L , t}];
+        for (auto& j : x) {
+            std::cout << G.findProductionL(j) << "->";
+            auto k = G.findProductionR(j);
+            for (auto& value : k) {
+                std::cout << value << " ";
+            }
+            std::cout << std::endl;
+        }
     }
 };
 #endif  // PARSER_H
