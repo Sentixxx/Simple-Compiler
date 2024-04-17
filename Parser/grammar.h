@@ -2,7 +2,9 @@
 #ifndef GRAMMAR_H
 #define GRAMMAR_H
 #include <algorithm>
+#include <map>
 #include <set>
+#include <stack>
 #include <string>
 #include <unordered_map>
 
@@ -14,21 +16,22 @@ class Grammar {
     std::set<std::string>                                                  T;
     std::set<std::string>                                                  NT;
     std::vector<std::pair<std::string, std::vector<std::string>>>          P;
-    std::set<std::string>                                  NULLABLE;
-    std::unordered_map<std::string, std::set<std::string>> first;
-    std::unordered_map<int, std::set<std::string>>         first_s;
-    std::unordered_map<std::string, std::set<std::string>> follow;
-
+    std::set<std::string>                                           NULLABLE;
+    std::unordered_map<std::string, std::set<std::string>>          first;
+    std::unordered_map<int, std::set<std::string>>                  first_s;
+    std::unordered_map<std::string, std::set<std::string>>          follow;
+    std::map<std::pair<std::string, std::string>, std::vector<int>> table;
     Grammar()
     {
-        testGrammar();
-        // initGrammar();
+        // testGrammar();
+        initGrammar();
         initTerminals();
         initNonTerminals();
         initNullable();
         initFirst();
         initFollow();
         initFirstS();
+        initTable();
     }
     void testGrammar()
     {
@@ -129,11 +132,11 @@ class Grammar {
         list["TermRest"] = {std::vector<std::string>{"*", "Factor", "TermRest"},
                             std::vector<std::string>{"/", "Factor", "TermRest"},
                             std::vector<std::string>{"EPSILON"}};
-        list["Factor"]   = {std::vector<std::string>{"id"},
-                            std::vector<std::string>{"INTC"},
-                            std::vector<std::string>{"DECI"},
-                            std::vector<std::string>{"(", "Exp", ")"}};
-
+        list["Factor"]   = {
+            std::vector<std::string>{"id"}, std::vector<std::string>{"INTC"},
+            std::vector<std::string>{"DECI"}, std::vector<std::string>{"str"},
+            std::vector<std::string>{"(", "Exp", ")"}};
+        // add str to match string
         /***条件表达式***/
         list["ConditionalExp"] = {
             std::vector<std::string>{"RelationExp", "ConditionalExpRest"}};
@@ -304,6 +307,36 @@ class Grammar {
         for (int i = 0; i < P.size(); i++) {
             calculateFirstS(i);
         }
+    }
+    void initTable()
+    {
+        for (int i = 0; i < P.size(); i++) {
+            for (auto& value : first_s[i]) {
+                table[{P[i].first, value}].push_back(i);
+            }
+        }
+    }
+    bool isTerminal(std::string s)
+    {
+        return T.find(s) != T.end();
+    }
+    bool isNonTerminal(std::string s)
+    {
+        return NT.find(s) != NT.end();
+    }
+    std::string findProductionL(int i)
+    {
+        if (i >= P.size()) {
+            throw "out of P range!";
+        }
+        return this->P[i].first;
+    }
+    std::vector<std::string> findProductionR(int i)
+    {
+        if (i >= P.size()) {
+            throw "out of P range!";
+        }
+        return this->P[i].second;
     }
 };
 #endif

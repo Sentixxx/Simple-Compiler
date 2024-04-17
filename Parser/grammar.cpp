@@ -26,7 +26,7 @@ int main()
     }
     std::cout << "------Productions:------" << std::endl;
     for (int i = 0; i < G.P.size(); i++) {
-        std::cout << G.P[i].first << " -> ";
+        std::cout << i << ":" << G.P[i].first << " -> ";
         for (auto k : G.P[i].second)
             std::cout << k << " ";
         std::cout << std::endl;
@@ -35,5 +35,19 @@ int main()
             std::cout << k << " ";
         std::cout << std::endl;
     }
-    std::cout << G.hasLeftRecursion();
+    //     std::cout << "------Table:------" << std::endl;
+    //     for (auto& j : G.T) {
+    //         std::cout << j << "|";
+    //     }
+    //     std::cout << std::endl;
+    //     for (auto& i : G.NT) {
+    //         std::cout << i << ":";
+    //         for (auto& j : G.T) {
+    //             for (auto k : G.table[{i, j}]) {
+    //                 std::cout << k << ",";
+    //             }
+    //             std::cout << "|";
+    //         }
+    //         std::cout << "\n";
+    //     }
 }
