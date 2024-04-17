@@ -192,6 +192,7 @@ void findToken(char& c, std::vector<TokenInfo>& tokens)
                 word += c;
                 c = getchar(is);
             }
+            // std::cerr << word << " " << c << " ";
             TL.saveToken(lineCounter, columnCounter, word, sort(word));
         }
         else {
@@ -359,6 +360,7 @@ int Scanner(std::vector<TokenInfo>& tokens)
                 c = getchar(is);
                 continue;
             }
+            // std::cerr << c << " ";
             findToken(c, tokens);
         }
     }
