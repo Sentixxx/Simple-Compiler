@@ -9,8 +9,12 @@
 #include <string>
 #include <unordered_map>
 
+#include <iostream>
 #include <vector>
 class Grammar {
+  private:
+    std::string BEGIN;
+
   public:
     std::unordered_map<std::string, std::vector<std::vector<std::string>>> list;
     std::set<std::string>                                                  T;
@@ -18,20 +22,35 @@ class Grammar {
     std::vector<std::pair<std::string, std::vector<std::string>>>          P;
     std::set<std::string>                                           NULLABLE;
     std::unordered_map<std::string, std::set<std::string>>          first;
-    std::unordered_map<int, std::set<std::string>>                  first_s;
+    std::unordered_map<int, std::set<std::string>>                  select;
     std::unordered_map<std::string, std::set<std::string>>          follow;
     std::map<std::pair<std::string, std::string>, std::vector<int>> table;
     Grammar()
     {
+        this->BEGIN = "S";
         testGrammar();
         // initGrammar();
         initTerminals();
         initNonTerminals();
         // initNullable();
+        initP();
         initFirst();
-        // initFollow();
-        // initFirstS();
-        // initTable();
+        initFollow();
+        initSelect();
+        initTable();
+    }
+    Grammar(std::string BEGIN)
+    {
+        this->BEGIN = BEGIN;
+        testGrammar();
+        // initGrammar();
+        initTerminals();
+        initNonTerminals();
+        initP();
+        initFirst();
+        initFollow();
+        initSelect();
+        initTable();
     }
     void testGrammar()
     {
@@ -205,18 +224,37 @@ class Grammar {
     {
         return NT.find(symbol) != NT.end();
     }
+    bool has(const std::set<std::string>& S, const std::string& symbol)
+    {
+        return S.find(symbol) != S.end();
+    }
     bool hasEPSILON(const std::set<std::string>& S)
     {
-        return S.find("EPSILON") != S.end();
+        return has(S, "EPSILON");
     }
     bool mergeExceptEPSILON(std::set<std::string>& A, std::set<std::string>& B)
     {
         bool flag = false;
-        B.erase("EPSILON");
-        flag |= merge(A, B);
-        B.insert("EPSILON");
+        if (B.find("EPSILON") != B.end()) {
+            B.erase("EPSILON");
+            B.erase("EPSILON");
+            flag |= merge(A, B);
+            B.insert("EPSILON");
+        }
+        else {
+            flag |= merge(A, B);
+        }
         return flag;
     }
+    void initP()
+    {
+        for (auto& [key, value] : list) {
+            for (auto& production : value) {
+                P.push_back({key, production});
+            }
+        }
+    }
+
     void initFirst()
     {
         bool flag = true;
@@ -249,6 +287,67 @@ class Grammar {
                             break;
                         }
                     }
+                }
+            }
+        }
+    }
+    void initFollow()
+    {
+        bool flag = true;
+        follow["S"].insert("#");
+        while (flag) {
+            flag = false;
+            for (auto& nt : NT) {
+                for (int i = 0; i < P.size(); i++) {
+                    auto& [left, right] = P[i];
+                    for (int j = right.size() - 1; j >= 0; j--) {
+                        if (nt == right[j]) {
+                            std::cout << "NT: " << nt << " " << i << " " << j
+                                      << "\n";
+                            if (j + 1 < right.size()) {
+                                if (!hasEPSILON(first[right[j]]))
+                                    flag |= mergeExceptEPSILON(
+                                        follow[nt], first[right[j + 1]]);
+                                else
+                                    flag |= merge(follow[nt], follow[left]);
+                            }
+                            else {
+                                flag |= merge(follow[nt], follow[left]);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+    void initSelect()
+    {
+        for (int i = 0; i < P.size(); i++) {
+            auto& [left, right] = P[i];
+
+            for (int j = 0; j < right.size(); j++) {
+                if (isTerminal(right[j])) {
+                    select[i].insert(right[j]);
+                    break;
+                }
+                else {
+                    merge(select[i], first[right[j]]);
+                    break;
+                }
+            }
+        }
+    }
+    void initTable()
+    {
+        T.insert("#");
+        for (int i = 0; i < P.size(); i++) {
+            auto& [left, right] = P[i];
+            for (auto& symbol : select[i]) {
+                table[{left, symbol}].push_back(i);
+            }
+            if (right[0] == "EPSILON") {
+                for (auto& symbol : follow[left]) {
+                    table[{left, symbol}].push_back(i);
                 }
             }
         }
