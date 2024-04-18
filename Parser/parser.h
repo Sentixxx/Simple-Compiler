@@ -41,11 +41,12 @@ class Parser : public Module {
         try {
             int                     i = 0;
             std::stack<std::string> s;
+            s.push("#");
             s.push("Program");
             // std::cout << TL.tok_lis.size() << "\n";
             while (i < TL.tok_lis.size() && !s.empty()) {
                 std::string t = s.top();
-                // std::cout << t << " " << s.size() << "\n";
+                std::cout << t << " " << s.size() << "\n";
                 if (gram.isTerminal(t)) {
                     std::cout << "handle: " << handleToken(i, TL).first << "\n";
                     if (t == handleToken(i, TL).first) {
@@ -85,10 +86,10 @@ class Parser : public Module {
                     // std::cout << "\n";
                 }
             }
-            while (!s.empty() && gram.isNullable(s.top())) {
-                // std::cerr << s.top() << "\n";
-                s.pop();
-            }
+            // while (!s.empty() && gram.isNullable(s.top())) {
+            //     // std::cerr << s.top() << "\n";
+            //     s.pop();
+            // }
             if (i == TL.tok_lis.size() && s.empty()) {
                 std::cout << "YES";
                 return;
@@ -115,10 +116,34 @@ class Parser : public Module {
 };
 class TopParser : protected Module {
   private:
-    int i = 0;
+    int                                 i = 0;
+    TokenList&                          TL;
+    Grammar&                            G;
+    std::pair<std::string, std::string> handleToken()
+    {
+        std::pair<std::string, std::string> token = TL.getTokenType(i);
+        if (token.first == "number")
+            return {"INTC", token.second};
+        else if (token.first == "float")
+            return {"DECI", token.second};
+        else if (token.first == "identifier") {
+            return {"id", token.second};
+        }
+        else {
+            return {token.second, token.second};
+        }
+    }
+    void next()
+    {
+        i++;
+    }
+    void last()
+    {
+        i--;
+    }
 
   public:
-    TopParser()
+    TopParser(TokenList& TL, Grammar& G) : TL(TL), G(G)
     {
         this->inputFile  = "../Data/lexer_token.out";
         this->outputFile = "../Data/parser_list.out";
@@ -133,12 +158,67 @@ class TopParser : protected Module {
     {
         return this->os;
     }
-    void parseExtDefList() {}
-    void parseProgram()
+    bool parseTYPE()
     {
-        parseExtDefList();
+        // std::cout << "parseTYPE --> ";
+        if (handleToken().first == "int" || handleToken().first == "float" ||
+            handleToken().first == "string") {
+            return true;
+        }
+        return false;
     }
-    void lparse(TokenList& TL, Grammar& G)
+    bool parseExtDefRest()
+    {
+        if (handleToken().first == ",") {
+            next();
+            if (handleToken().first == "id") {
+                next();
+                if (parseExtDefRest())
+                    return true;
+                last();
+            }
+            last();
+        }
+    }
+    bool parseExtDef()
+    {
+        // std::cout << "parseExtDef --> ";
+        if (parseTYPE()) {
+            next();
+            if (handleToken().first == "id") {
+                next();
+                if (parseExtDefRest())
+                    if (handleToken().first == ";") {
+                        next();
+                        return true;
+                    }
+                last();
+            }
+            last();
+        }
+        return false;
+    }
+    bool parseExtDefList()
+    {
+        // std::cout << "parseExtDefList --> ";
+        if (parseExtDef()) {
+            if (parseExtDefList())
+                return true;
+            else {
+                return false;
+            }
+        }
+        return true;
+    }
+    bool parseProgram()
+    {
+        // std::cout << "parseProgram --> ";
+        if (parseExtDefList()) {
+            return true;
+        }
+        return false;
+    }
+    void lparse()
     {
         try {
             parseProgram();

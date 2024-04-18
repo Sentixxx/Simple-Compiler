@@ -27,23 +27,17 @@ class Grammar {
     std::map<std::pair<std::string, std::string>, std::vector<int>> table;
     Grammar()
     {
-        this->BEGIN = "S";
-        testGrammar();
-        // initGrammar();
-        initTerminals();
-        initNonTerminals();
-        // initNullable();
-        initP();
-        initFirst();
-        initFollow();
-        initSelect();
-        initTable();
+        init();
     }
     Grammar(std::string BEGIN)
     {
         this->BEGIN = BEGIN;
-        testGrammar();
-        // initGrammar();
+        init();
+    }
+    void init()
+    {
+        // testGrammar();
+        initGrammar();
         initTerminals();
         initNonTerminals();
         initP();
@@ -54,17 +48,31 @@ class Grammar {
     }
     void testGrammar()
     {
-        list["S"]  = {std::vector<std::string>{"a", "F", "A"},
-                      std::vector<std::string>{"+", "a", "F", "A"}};
-        list["A"]  = {std::vector<std::string>{"+", "AP"},
-                      std::vector<std::string>{"EPSILON"}};
-        list["AP"] = {std::vector<std::string>{"a", "F", "A"},
-                      std::vector<std::string>{"B"}};
-        list["F"]  = {
-            std::vector<std::string>{"*", "a", "B"},
-        };
-        list["B"] = {std::vector<std::string>{"F"},
+        // list["S"]  = {std::vector<std::string>{"a", "F", "A"},
+        //               std::vector<std::string>{"+", "a", "F", "A"}};
+        // list["A"]  = {std::vector<std::string>{"+", "AP"},
+        //               std::vector<std::string>{"EPSILON"}};
+        // list["AP"] = {std::vector<std::string>{"a", "F", "A"},
+        //               std::vector<std::string>{"B"}};
+        // list["F"]  = {
+        //     std::vector<std::string>{"*", "a", "B"},
+        // };
+        // list["B"] = {std::vector<std::string>{"F"},
+        //              std::vector<std::string>{"EPSILON"}};
+        this->BEGIN = "S";
+        list["S"]   = {std::vector<std::string>{"A", "B"},
+                       std::vector<std::string>{"b", "C"}};
+        list["A"]   = {std::vector<std::string>{"b"},
+                       std::vector<std::string>{"EPSILON"}};
+        // list["F"] = {
+        //     std::vector<std::string>{"*", "a", "B"},
+        // };
+        list["B"] = {std::vector<std::string>{"a", "D"},
                      std::vector<std::string>{"EPSILON"}};
+        list["C"] = {std::vector<std::string>{"b"},
+                     std::vector<std::string>{"A", "D"}};
+        list["D"] = {std::vector<std::string>{"a", "S"},
+                     std::vector<std::string>{"c"}};
     }
     bool merge(std::set<std::string>& a, std::set<std::string>& b)
     {
@@ -83,6 +91,7 @@ class Grammar {
     }
     void initGrammar()
     {
+        this->BEGIN = "Program";
         /***程序：由0个或多个全局变量或函数组成***/
         list["Program"]    = {std::vector<std::string>{"ExtDefList"}};
         list["ExtDefList"] = {std::vector<std::string>{"ExtDef", "ExtDefList"},
@@ -258,33 +267,30 @@ class Grammar {
     void initFirst()
     {
         bool flag = true;
+        for (auto& t : T) {
+            first[t].insert(t);
+        }
         while (flag) {
             flag = false;
             for (auto& [key, value] : list) {
                 for (auto& production : value) {
-                    if (production[0] == "EPSILON" ||
-                        isTerminal(production[0])) {
-                        flag |= merge(first[key], production[0]);
-                    }
-                    if (isNonTerminal(production[0])) {
-                        flag |= merge(first[key], first[production[0]]);
-                    }
-
                     for (int i = 0; i < production.size(); i++) {
-                        if (isNonTerminal(production[i])) {
+                        if (production[i] == "EPSILON") {
+                            flag |= merge(first[key], production[i]);
+                            break;
+                        }
+                        else {
                             if (hasEPSILON(first[production[i]])) {
                                 flag |= mergeExceptEPSILON(
                                     first[key], first[production[i]]);
-                                if (i + 1 == production.size()) {
-                                    flag |= merge(first[key], "EPSILON");
-                                }
                             }
                             else {
                                 flag |= merge(first[key], first[production[i]]);
+                                break;
                             }
-                        }
-                        else {
-                            break;
+                            if (i + 1 == production.size()) {
+                                flag |= merge(first[key], "EPSILON");
+                            }
                         }
                     }
                 }
@@ -294,25 +300,21 @@ class Grammar {
     void initFollow()
     {
         bool flag = true;
-        follow["S"].insert("#");
+        follow[BEGIN].insert("#");
         while (flag) {
             flag = false;
             for (auto& nt : NT) {
                 for (int i = 0; i < P.size(); i++) {
                     auto& [left, right] = P[i];
-                    for (int j = right.size() - 1; j >= 0; j--) {
+                    for (int j = 0; j < right.size(); j++) {
                         if (nt == right[j]) {
-                            std::cout << "NT: " << nt << " " << i << " " << j
-                                      << "\n";
-                            if (j + 1 < right.size()) {
-                                if (!hasEPSILON(first[right[j]]))
-                                    flag |= mergeExceptEPSILON(
-                                        follow[nt], first[right[j + 1]]);
-                                else
-                                    flag |= merge(follow[nt], follow[left]);
+                            if (j + 1 == right.size() ||
+                                hasEPSILON(first[right[j + 1]])) {
+                                flag |= merge(follow[nt], follow[left]);
                             }
                             else {
-                                flag |= merge(follow[nt], follow[left]);
+                                flag |= mergeExceptEPSILON(follow[nt],
+                                                           first[right[j + 1]]);
                             }
                         }
                     }
@@ -320,37 +322,38 @@ class Grammar {
             }
         }
     }
-    void initSelect()
+    void initSelect() {}
+    void initTable()
     {
         for (int i = 0; i < P.size(); i++) {
             auto& [left, right] = P[i];
-
-            for (int j = 0; j < right.size(); j++) {
-                if (isTerminal(right[j])) {
-                    select[i].insert(right[j]);
-                    break;
-                }
-                else {
-                    merge(select[i], first[right[j]]);
-                    break;
+            for (auto& symbol : right) {
+                if (isTerminal(symbol))
+                    table[{left, symbol}].push_back(i);
+                if (hasEPSILON(first[symbol])) {
+                    for (auto& follow_symbol : follow[left]) {
+                        if (isTerminal(follow_symbol))
+                            table[{left, follow_symbol}].push_back(i);
+                    }
+                    if (has(follow[left], "#"))
+                        table[{left, "#"}].push_back(i);
                 }
             }
         }
     }
-    void initTable()
+    std::string findProductionL(int i)
     {
-        T.insert("#");
-        for (int i = 0; i < P.size(); i++) {
-            auto& [left, right] = P[i];
-            for (auto& symbol : select[i]) {
-                table[{left, symbol}].push_back(i);
-            }
-            if (right[0] == "EPSILON") {
-                for (auto& symbol : follow[left]) {
-                    table[{left, symbol}].push_back(i);
-                }
-            }
+        if (i >= P.size()) {
+            throw "out of P range!";
         }
+        return this->P[i].first;
+    }
+    std::vector<std::string> findProductionR(int i)
+    {
+        if (i >= P.size()) {
+            throw "out of P range!";
+        }
+        return this->P[i].second;
     }
 };
 #endif

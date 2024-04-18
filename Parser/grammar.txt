@@ -1,19 +1,3 @@
-______NULLABLE______
-ArgList
-ArgListRest
-ConditionalExpRest
-ConditionalStmtRest
-ExpRest
-ExtDefList
-ExtDefRest
-LocalVariableDeclarationRest
-Program
-RelationExpRest
-ReturnStmtRest
-StmtList
-TermRest
-VarList
-VarListRest
 --------T:---------
 !=
 (
@@ -30,7 +14,6 @@ VarListRest
 ==
 >
 >=
-Callstmt
 DECI
 INTC
 and
@@ -86,338 +69,296 @@ VarListRest
 idStmt
 idStmtRest
 -------FIRST:-------
-Term: ( DECI INTC id str 
-ReturnStmtRest: ( DECI INTC id str 
-ExpRest: + - 
-ArgListRest: , 
+EPSILON: 
+VarList: EPSILON float int string 
+ExpRest: + - EPSILON 
+ArgListRest: , EPSILON 
 AssignmentStmt: = 
-StmtList: ; break float id if int return string while { 
-CmpOp: != < <= == > >= 
-LoopStmt: while 
-ConditionalExpRest: or 
-ExtDefRest: , 
-TermRest: * / 
-ConditionalStmtRest: else 
-idStmt: id 
-Factor: ( DECI INTC id str 
+str: str 
+int: int 
 RelationExp: ( DECI INTC id str 
-Stmt: ; break float id if int return string while { 
-RelationExpRest: and 
-BreakStmt: break 
-LocalVariableDeclaration: float int string 
-CompExp: ( DECI INTC id str 
-VarListRest: , 
-ExtDefP: ( , ; 
-CompSt: { 
-VarList: float int string 
-Exp: ( DECI INTC id str 
-ConditionalStmt: if 
-ReturnStmt: return 
-ExtDefList: float int string 
-ArgList: ( DECI INTC id str 
-ExtDef: float int string 
-idStmtRest: = Callstmt 
-ConditionalExp: ( DECI INTC id str 
-LocalVariableDeclarationRest: , 
-CallStmt: ( 
+id: id 
+Factor: ( DECI INTC id str 
++: + 
+{: { 
+else: else 
+break: break 
+idStmtRest: ( = 
+and: and 
+Term: ( DECI INTC id str 
+>: > 
+<=: <= 
+-: - 
+DECI: DECI 
+*: * 
 FunDec: ( 
 TYPE: float int string 
-Program: float int string 
--------FIRSTs:-------
-0: and 
-1: ) or 
-2: ( DECI INTC id str 
-3: or 
-4: ) 
-5: id 
-6: INTC 
-7: DECI 
-8: str 
-9: ( 
-10: * 
-11: / 
-12: != ) + , - ; < <= == > >= and or 
-13: ; break float id if int return string while { 
-14: } 
-15: if 
-16: while 
-17: id 
-18: return 
-19: break 
-20: float int string 
-21: { 
-22: ; 
-23: { 
-24: ( DECI INTC id str 
-25: , 
-26: ) 
-27: , ; 
-28: ( 
-29: , 
-30: ; 
-31: ( 
-32: ( 
-33: int 
-34: float 
-35: string 
-36: float int string 
-37: , 
-38: ; 
-39: < 
-40: <= 
-41: > 
-42: >= 
-43: == 
-44: != 
-45: while 
-46: ( DECI INTC id str 
-47: float int string 
-48: Callstmt 
-49: = 
-50: ( DECI INTC id str 
-51: ) 
-52: , 
-53: ) 
-54: = 
-55: + 
-56: - 
-57: != ) , ; < <= == > >= and or 
-58: float int string 
-59: 
-60: return 
-61: if 
-62: ( DECI INTC id str 
-63: ; 
-64: id 
-65: else 
-66: ; break else float id if int return string while { } 
-67: float int string 
-68: break 
-69: float int string 
-70: ) 
-71: ( DECI INTC id str 
-72: ( DECI INTC id str 
-------Follow:-------
-ReturnStmtRest: ; 
-Term: != ) + , - ; < <= == > >= and or 
-ExpRest: != ) , ; < <= == > >= and or 
-ArgListRest: ) 
-AssignmentStmt: ; break else float id if int return string while { } 
-StmtList: } 
-CmpOp: ( DECI INTC id str 
-LoopStmt: ; break else float id if int return string while { } 
-ConditionalExpRest: ) 
-ExtDefRest: ; 
-TermRest: != ) + , - ; < <= == > >= and or 
-ConditionalStmtRest: ; break else float id if int return string while { } 
-idStmt: ; break else float id if int return string while { } 
-Factor: != ) * + , - / ; < <= == > >= and or 
-RelationExp: ) or 
-Stmt: ; break else float id if int return string while { } 
-RelationExpRest: ) or 
-BreakStmt: ; break else float id if int return string while { } 
-LocalVariableDeclaration: ; break else float id if int return string while { } 
-CompExp: ) and or 
-VarListRest: ) 
-ExtDefP: float int string 
-CompSt: ; break else float id if int return string while { } 
-Program: 
-TYPE: id 
-FunDec: { 
-ReturnStmt: ; break else float id if int return string while { } 
-ConditionalStmt: ; break else float id if int return string while { } 
-ExtDefList: 
-idStmtRest: ; break else float id if int return string while { } 
+while: while 
+ExtDefP: ( , ; 
+or: or 
+ReturnStmtRest: ( DECI EPSILON INTC id str 
+INTC: INTC 
+!=: != 
+if: if 
+Program: EPSILON float int string 
+ConditionalExp: ( DECI INTC id str 
+RelationExpRest: EPSILON and 
 ExtDef: float int string 
+): ) 
+return: return 
+Stmt: ; break float id if int return string while { 
+>=: >= 
+==: == 
+float: float 
+/: / 
+<: < 
+Exp: ( DECI INTC id str 
+TermRest: * / EPSILON 
+,: , 
+=: = 
+CompExp: ( DECI INTC id str 
+ConditionalStmtRest: EPSILON else 
+ArgList: ( DECI EPSILON INTC id str 
+VarListRest: , EPSILON 
+ConditionalExpRest: EPSILON or 
+StmtList: ; EPSILON break float id if int return string while { 
+(: ( 
+ConditionalStmt: if 
+ReturnStmt: return 
+ExtDefList: EPSILON float int string 
+CmpOp: != < <= == > >= 
+}: } 
+LoopStmt: while 
+idStmt: id 
+BreakStmt: break 
+string: string 
+LocalVariableDeclaration: float int string 
+CompSt: { 
+ExtDefRest: , EPSILON 
+;: ; 
+LocalVariableDeclarationRest: , EPSILON 
+CallStmt: ( 
+------Follow:-------
+StmtList: } 
+LocalVariableDeclarationRest: ; 
+RelationExp: ) 
+Stmt: } 
+VarListRest: ) 
+CompExp: ) 
+CompSt: # } 
+RelationExpRest: ) 
+ArgListRest: ) 
+CallStmt: } 
+AssignmentStmt: } 
+ExpRest: != ) ; < <= == > >= 
+LoopStmt: } 
+CmpOp: ( DECI INTC id str 
+TermRest: != ) ; < <= == > >= 
+Program: # 
+ExtDefP: # 
+BreakStmt: } 
+LocalVariableDeclaration: } 
+idStmtRest: } 
+ExtDef: # 
 ArgList: ) 
 ConditionalExp: ) 
-LocalVariableDeclarationRest: ; 
-CallStmt: 
-Exp: != ) , ; < <= == > >= and or 
+TYPE: id 
+FunDec: { 
+ConditionalExpRest: ) 
+ExtDefRest: ; 
+ReturnStmt: } 
+ExtDefList: # 
+ConditionalStmt: } 
+ReturnStmtRest: ; 
+idStmt: } 
+ConditionalStmtRest: } 
 VarList: ) 
+Exp: != ) ; < <= == > >= 
+Factor: != ) ; < <= == > >= 
+Term: != ) ; < <= == > >= 
 ------Productions:------
 0:RelationExpRest -> and CompExp RelationExpRest 
-First: and 
+Select: 
 1:RelationExpRest -> EPSILON 
-First: ) or 
+Select: 
 2:RelationExp -> CompExp RelationExpRest 
-First: ( DECI INTC id str 
+Select: 
 3:ConditionalExpRest -> or RelationExp ConditionalExpRest 
-First: or 
+Select: 
 4:ConditionalExpRest -> EPSILON 
-First: ) 
+Select: 
 5:Factor -> id 
-First: id 
+Select: 
 6:Factor -> INTC 
-First: INTC 
+Select: 
 7:Factor -> DECI 
-First: DECI 
+Select: 
 8:Factor -> str 
-First: str 
+Select: 
 9:Factor -> ( Exp ) 
-First: ( 
+Select: 
 10:TermRest -> * Factor TermRest 
-First: * 
+Select: 
 11:TermRest -> / Factor TermRest 
-First: / 
+Select: 
 12:TermRest -> EPSILON 
-First: != ) + , - ; < <= == > >= and or 
+Select: 
 13:StmtList -> Stmt StmtList 
-First: ; break float id if int return string while { 
+Select: 
 14:StmtList -> EPSILON 
-First: } 
+Select: 
 15:Stmt -> ConditionalStmt 
-First: if 
+Select: 
 16:Stmt -> LoopStmt 
-First: while 
+Select: 
 17:Stmt -> idStmt 
-First: id 
+Select: 
 18:Stmt -> ReturnStmt 
-First: return 
+Select: 
 19:Stmt -> BreakStmt 
-First: break 
+Select: 
 20:Stmt -> LocalVariableDeclaration 
-First: float int string 
+Select: 
 21:Stmt -> CompSt 
-First: { 
+Select: 
 22:Stmt -> ; 
-First: ; 
+Select: 
 23:CompSt -> { StmtList } 
-First: { 
+Select: 
 24:CompExp -> Exp CmpOp Exp 
-First: ( DECI INTC id str 
+Select: 
 25:VarListRest -> , TYPE id VarListRest 
-First: , 
+Select: 
 26:VarListRest -> EPSILON 
-First: ) 
+Select: 
 27:ExtDefP -> ExtDefRest ; 
-First: , ; 
+Select: 
 28:ExtDefP -> FunDec CompSt 
-First: ( 
+Select: 
 29:LocalVariableDeclarationRest -> , id LocalVariableDeclarationRest 
-First: , 
+Select: 
 30:LocalVariableDeclarationRest -> EPSILON 
-First: ; 
+Select: 
 31:CallStmt -> ( ArgList ) ; 
-First: ( 
+Select: 
 32:FunDec -> ( VarList ) 
-First: ( 
+Select: 
 33:TYPE -> int 
-First: int 
+Select: 
 34:TYPE -> float 
-First: float 
+Select: 
 35:TYPE -> string 
-First: string 
+Select: 
 36:Program -> ExtDefList 
-First: float int string 
+Select: 
 37:ExtDefRest -> , id ExtDefRest 
-First: , 
+Select: 
 38:ExtDefRest -> EPSILON 
-First: ; 
+Select: 
 39:CmpOp -> < 
-First: < 
+Select: 
 40:CmpOp -> <= 
-First: <= 
+Select: 
 41:CmpOp -> > 
-First: > 
+Select: 
 42:CmpOp -> >= 
-First: >= 
+Select: 
 43:CmpOp -> == 
-First: == 
+Select: 
 44:CmpOp -> != 
-First: != 
+Select: 
 45:LoopStmt -> while ( ConditionalExp ) Stmt 
-First: while 
+Select: 
 46:ConditionalExp -> RelationExp ConditionalExpRest 
-First: ( DECI INTC id str 
+Select: 
 47:ExtDef -> TYPE id ExtDefP 
-First: float int string 
-48:idStmtRest -> Callstmt 
-First: Callstmt 
+Select: 
+48:idStmtRest -> CallStmt 
+Select: 
 49:idStmtRest -> AssignmentStmt 
-First: = 
+Select: 
 50:ArgList -> Exp ArgListRest 
-First: ( DECI INTC id str 
+Select: 
 51:ArgList -> EPSILON 
-First: ) 
+Select: 
 52:ArgListRest -> , Exp ArgListRest 
-First: , 
+Select: 
 53:ArgListRest -> EPSILON 
-First: ) 
+Select: 
 54:AssignmentStmt -> = Exp ; 
-First: = 
+Select: 
 55:ExpRest -> + Term ExpRest 
-First: + 
+Select: 
 56:ExpRest -> - Term ExpRest 
-First: - 
+Select: 
 57:ExpRest -> EPSILON 
-First: != ) , ; < <= == > >= and or 
+Select: 
 58:ExtDefList -> ExtDef ExtDefList 
-First: float int string 
+Select: 
 59:ExtDefList -> EPSILON 
-First: 
+Select: 
 60:ReturnStmt -> return ReturnStmtRest ; 
-First: return 
+Select: 
 61:ConditionalStmt -> if ( ConditionalExp ) Stmt ConditionalStmtRest 
-First: if 
+Select: 
 62:ReturnStmtRest -> Exp 
-First: ( DECI INTC id str 
+Select: 
 63:ReturnStmtRest -> EPSILON 
-First: ; 
+Select: 
 64:idStmt -> id idStmtRest 
-First: id 
+Select: 
 65:ConditionalStmtRest -> else Stmt 
-First: else 
+Select: 
 66:ConditionalStmtRest -> EPSILON 
-First: ; break else float id if int return string while { } 
+Select: 
 67:LocalVariableDeclaration -> TYPE id LocalVariableDeclarationRest ; 
-First: float int string 
+Select: 
 68:BreakStmt -> break ; 
-First: break 
+Select: 
 69:VarList -> TYPE id VarListRest 
-First: float int string 
+Select: 
 70:VarList -> EPSILON 
-First: ) 
+Select: 
 71:Exp -> Term ExpRest 
-First: ( DECI INTC id str 
+Select: 
 72:Term -> Factor TermRest 
-First: ( DECI INTC id str 
+Select: 
 ------Table:------
-!=|(|)|*|+|,|-|/|;|<|<=|=|==|>|>=|Callstmt|DECI|INTC|and|break|else|float|id|if|int|or|return|str|string|while|{|}|
-ArgList:(:50, ):51, DECI:50, INTC:50, id:50, str:50, 
-ArgListRest:):53, ,:52, 
-AssignmentStmt:=:54, 
-BreakStmt:break:68, 
-CallStmt:(:31, 
-CmpOp:!=:44, <:39, <=:40, ==:43, >:41, >=:42, 
-CompExp:(:24, DECI:24, INTC:24, id:24, str:24, 
-CompSt:{:23, 
-ConditionalExp:(:46, DECI:46, INTC:46, id:46, str:46, 
-ConditionalExpRest:):4, or:3, 
-ConditionalStmt:if:61, 
-ConditionalStmtRest:;:66, break:66, Error!!!! else:65, else:66, float:66, id:66, if:66, int:66, return:66, string:66, while:66, {:66, }:66, 
-Exp:(:71, DECI:71, INTC:71, id:71, str:71, 
-ExpRest:!=:57, ):57, +:55, ,:57, -:56, ;:57, <:57, <=:57, ==:57, >:57, >=:57, and:57, or:57, 
-ExtDef:float:47, int:47, string:47, 
-ExtDefList:float:58, int:58, string:58, 
-ExtDefP:(:28, ,:27, ;:27, 
-ExtDefRest:,:37, ;:38, 
-Factor:(:9, DECI:7, INTC:6, id:5, str:8, 
-FunDec:(:32, 
-LocalVariableDeclaration:float:67, int:67, string:67, 
-LocalVariableDeclarationRest:,:29, ;:30, 
-LoopStmt:while:45, 
-Program:float:36, int:36, string:36, 
-RelationExp:(:2, DECI:2, INTC:2, id:2, str:2, 
-RelationExpRest:):1, and:0, or:1, 
-ReturnStmt:return:60, 
-ReturnStmtRest:(:62, ;:63, DECI:62, INTC:62, id:62, str:62, 
-Stmt:;:22, break:19, float:20, id:17, if:15, int:20, return:18, string:20, while:16, {:21, 
-StmtList:;:13, break:13, float:13, id:13, if:13, int:13, return:13, string:13, while:13, {:13, }:14, 
-TYPE:float:34, int:33, string:35, 
-Term:(:72, DECI:72, INTC:72, id:72, str:72, 
-TermRest:!=:12, ):12, *:10, +:12, ,:12, -:12, /:11, ;:12, <:12, <=:12, ==:12, >:12, >=:12, and:12, or:12, 
-VarList:):70, float:69, int:69, string:69, 
-VarListRest:):26, ,:25, 
-idStmt:id:64, 
-idStmtRest:=:49, Callstmt:48, 
+!=|(|)|*|+|,|-|/|;|<|<=|=|==|>|>=|DECI|INTC|and|break|else|float|id|if|int|or|return|str|string|while|{|}|
+ArgList:) --> Exp ArgListRest  || 
+ArgListRest:) --> , Exp ArgListRest  || , --> , Exp ArgListRest  || 
+AssignmentStmt:; --> = Exp ;  || = --> = Exp ;  || 
+BreakStmt:; --> break ;  || break --> break ;  || 
+CallStmt:( --> ( ArgList ) ;  || ) --> ( ArgList ) ;  || ; --> ( ArgList ) ;  || } --> ( ArgList ) ;  || 
+CmpOp:!= --> !=  || < --> <  || <= --> <=  || == --> ==  || > --> >  || >= --> >=  || 
+CompExp:
+CompSt:{ --> { StmtList }  || Error!!!! } --> { StmtList }  || } --> { StmtList }  || 
+ConditionalExp:) --> RelationExp ConditionalExpRest  || 
+ConditionalExpRest:) --> or RelationExp ConditionalExpRest  || or --> or RelationExp ConditionalExpRest  || 
+ConditionalStmt:( --> if ( ConditionalExp ) Stmt ConditionalStmtRest  || ) --> if ( ConditionalExp ) Stmt ConditionalStmtRest  || if --> if ( ConditionalExp ) Stmt ConditionalStmtRest  || } --> if ( ConditionalExp ) Stmt ConditionalStmtRest  || 
+ConditionalStmtRest:else --> else Stmt  || 
+Exp:!= --> Term ExpRest  || ) --> Term ExpRest  || ; --> Term ExpRest  || < --> Term ExpRest  || <= --> Term ExpRest  || == --> Term ExpRest  || > --> Term ExpRest  || >= --> Term ExpRest  || 
+ExpRest:Error!!!! != --> + Term ExpRest  || != --> - Term ExpRest  || Error!!!! ) --> + Term ExpRest  || ) --> - Term ExpRest  || + --> + Term ExpRest  || - --> - Term ExpRest  || Error!!!! ; --> + Term ExpRest  || ; --> - Term ExpRest  || Error!!!! < --> + Term ExpRest  || < --> - Term ExpRest  || Error!!!! <= --> + Term ExpRest  || <= --> - Term ExpRest  || Error!!!! == --> + Term ExpRest  || == --> - Term ExpRest  || Error!!!! > --> + Term ExpRest  || > --> - Term ExpRest  || Error!!!! >= --> + Term ExpRest  || >= --> - Term ExpRest  || 
+ExtDef:id --> TYPE id ExtDefP  || 
+ExtDefList:
+ExtDefP:; --> ExtDefRest ;  || 
+ExtDefRest:, --> , id ExtDefRest  || ; --> , id ExtDefRest  || id --> , id ExtDefRest  || 
+Factor:( --> ( Exp )  || ) --> ( Exp )  || DECI --> DECI  || INTC --> INTC  || id --> id  || str --> str  || 
+FunDec:( --> ( VarList )  || ) --> ( VarList )  || { --> ( VarList )  || 
+LocalVariableDeclaration:; --> TYPE id LocalVariableDeclarationRest ;  || id --> TYPE id LocalVariableDeclarationRest ;  || } --> TYPE id LocalVariableDeclarationRest ;  || 
+LocalVariableDeclarationRest:, --> , id LocalVariableDeclarationRest  || ; --> , id LocalVariableDeclarationRest  || id --> , id LocalVariableDeclarationRest  || 
+LoopStmt:( --> while ( ConditionalExp ) Stmt  || ) --> while ( ConditionalExp ) Stmt  || while --> while ( ConditionalExp ) Stmt  || 
+Program:
+RelationExp:) --> CompExp RelationExpRest  || 
+RelationExpRest:) --> and CompExp RelationExpRest  || and --> and CompExp RelationExpRest  || 
+ReturnStmt:; --> return ReturnStmtRest ;  || return --> return ReturnStmtRest ;  || } --> return ReturnStmtRest ;  || 
+ReturnStmtRest:
+Stmt:; --> ;  || 
+StmtList:} --> Stmt StmtList  || 
+TYPE:float --> float  || int --> int  || string --> string  || 
+Term:!= --> Factor TermRest  || ) --> Factor TermRest  || ; --> Factor TermRest  || < --> Factor TermRest  || <= --> Factor TermRest  || == --> Factor TermRest  || > --> Factor TermRest  || >= --> Factor TermRest  || 
+TermRest:Error!!!! != --> * Factor TermRest  || != --> / Factor TermRest  || Error!!!! ) --> * Factor TermRest  || ) --> / Factor TermRest  || * --> * Factor TermRest  || / --> / Factor TermRest  || Error!!!! ; --> * Factor TermRest  || ; --> / Factor TermRest  || Error!!!! < --> * Factor TermRest  || < --> / Factor TermRest  || Error!!!! <= --> * Factor TermRest  || <= --> / Factor TermRest  || Error!!!! == --> * Factor TermRest  || == --> / Factor TermRest  || Error!!!! > --> * Factor TermRest  || > --> / Factor TermRest  || Error!!!! >= --> * Factor TermRest  || >= --> / Factor TermRest  || 
+VarList:) --> TYPE id VarListRest  || id --> TYPE id VarListRest  || 
+VarListRest:) --> , TYPE id VarListRest  || , --> , TYPE id VarListRest  || id --> , TYPE id VarListRest  || 
+idStmt:id --> id idStmtRest  || 
+idStmtRest:
