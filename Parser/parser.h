@@ -13,31 +13,28 @@
 #include <string>
 
 class Parser : public Module {
-  public:
-    Parser()
-    {
-        this->inputFile  = "../Data/lexer_token.out";
+public:
+    Parser() {
+        this->inputFile = "../Data/lexer_token.out";
         this->outputFile = "../Data/parser_list.out";
-        this->is         = std::ifstream(inputFile);
-        this->os         = std::ofstream(outputFile);
+        this->is = std::ifstream(inputFile);
+        this->os = std::ofstream(outputFile);
     }
 
-    std::pair<std::string, std::string> handleToken(int i, TokenList& TL)
-    {
-        std::pair<std::string, std::string> token = TL.getTokenType(i);
+    std::pair<std::string , std::string> handleToken(int i , TokenList& TL) {
+        std::pair<std::string , std::string> token = TL.getTokenType(i);
         if (token.first == "number")
-            return {"INTC", token.second};
+            return { "INTC", token.second };
         else if (token.first == "float")
-            return {"DECI", token.second};
+            return { "DECI", token.second };
         else if (token.first == "identifier") {
-            return {"id", token.second};
+            return { "id", token.second };
         }
         else {
-            return {token.second, token.second};
+            return { token.second, token.second };
         }
     }
-    void lparse(Grammar& gram, TokenList& TL)
-    {
+    void lparse(Grammar& gram , TokenList& TL) {
         try {
             int                     i = 0;
             std::stack<std::string> s;
@@ -48,8 +45,8 @@ class Parser : public Module {
                 std::string t = s.top();
                 std::cout << t << " " << s.size() << "\n";
                 if (gram.isTerminal(t)) {
-                    std::cout << "handle: " << handleToken(i, TL).first << "\n";
-                    if (t == handleToken(i, TL).first) {
+                    std::cout << "handle: " << handleToken(i , TL).first << "\n";
+                    if (t == handleToken(i , TL).first) {
                         i++;
                         s.pop();
                     }
@@ -61,17 +58,17 @@ class Parser : public Module {
                 else if (gram.isNonTerminal(t)) {
                     std::cout << s.top() << "-->";
                     s.pop();
-                    auto table_unit = gram.table[{t, handleToken(i, TL).first}];
+                    auto table_unit = gram.table[{t , handleToken(i , TL).first}];
                     // std::cout << handleToken(i, TL).first <<
                     // "\n"; std::cout << "size:" <<
                     // table_unit.size() << " ";
                     if (table_unit.size() > 1 || table_unit.size() == 0) {
                         std::cerr << table_unit.size() << ", "
-                                  << handleToken(i, TL).first << "\n";
+                            << handleToken(i , TL).first << "\n";
                         std::string e = "Syntax Error";
                         e += " at ";
                         e += std::to_string(TL.tok_lis[i].line) + ":" +
-                             std::to_string(TL.tok_lis[i].column);
+                            std::to_string(TL.tok_lis[i].column);
                         if (table_unit.size() == 0)
                             throw e;
                         throw "LL1 Error";
@@ -101,9 +98,8 @@ class Parser : public Module {
             std::cout << "NO";
         }
     }
-    void show(std::string L, Grammar& G, std::string t)
-    {
-        auto x = G.table[{L, t}];
+    void show(std::string L , Grammar& G , std::string t) {
+        auto x = G.table[{L , t}];
         for (auto& j : x) {
             std::cout << G.findProductionL(j) << "->";
             auto k = G.findProductionR(j);
@@ -115,51 +111,53 @@ class Parser : public Module {
     }
 };
 class TopParser : protected Module {
-  private:
+private:
     int                                 i = 0;
-    TokenList&                          TL;
-    Grammar&                            G;
-    std::pair<std::string, std::string> handleToken()
-    {
-        std::pair<std::string, std::string> token = TL.getTokenType(i);
+    int maxi = 0;
+    TokenList& TL;
+    Grammar& G;
+    std::pair<std::string , std::string> handleToken() {
+        std::pair<std::string , std::string> token = TL.getTokenType(i);
         if (token.first == "number")
-            return {"INTC", token.second};
+            return { "INTC", token.second };
         else if (token.first == "float")
-            return {"DECI", token.second};
+            return { "DECI", token.second };
         else if (token.first == "identifier") {
-            return {"id", token.second};
+            return { "id", token.second };
         }
         else {
-            return {token.second, token.second};
+            return { token.second, token.second };
         }
     }
-    void next()
-    {
-        i++;
+    void next() {
+        maxi = std::max(i , maxi);
+        if (i == TL.tok_lis.size() - 1) {
+            std::cerr << "reach the end of file!\n";
+        }
+        else {
+            std::cout << "try handle: " << handleToken().first << "\n";
+            i++;
+        }
     }
-    void back()
-    {
+    void back() {
         i--;
+        std::cerr << "Fail handle: " << handleToken().first << "\n";
     }
 
-  public:
-    TopParser(TokenList& TL, Grammar& G) : TL(TL), G(G)
-    {
-        this->inputFile  = "../Data/lexer_token.out";
+public:
+    TopParser(TokenList& TL , Grammar& G) : TL(TL) , G(G) {
+        this->inputFile = "../Data/lexer_token.out";
         this->outputFile = "../Data/parser_list.out";
-        this->is         = std::ifstream(inputFile);
-        this->os         = std::ofstream(outputFile);
+        this->is = std::ifstream(inputFile);
+        this->os = std::ofstream(outputFile);
     }
-    std::ifstream& getIs()
-    {
+    std::ifstream& getIs() {
         return this->is;
     }
-    std::ofstream& getOs()
-    {
+    std::ofstream& getOs() {
         return this->os;
     }
-    bool parseTYPE()
-    {
+    bool parseTYPE() {
         // std::cout << "parseTYPE --> ";
         if (handleToken().first == "int" || handleToken().first == "float" ||
             handleToken().first == "string") {
@@ -167,8 +165,13 @@ class TopParser : protected Module {
         }
         return false;
     }
-    bool parseExtDefRest()
-    {
+    bool parseCmpOp() {
+        if (handleToken().first == "==" || handleToken().first == "!=" || handleToken().first == "<" || handleToken().first == ">" || handleToken().first == "<=" || handleToken().first == ">=") {
+            return true;
+        }
+        return false;
+    }
+    bool parseExtDefRest() {
         if (handleToken().first == ",") {
             next();
             if (handleToken().first == "id") {
@@ -179,9 +182,9 @@ class TopParser : protected Module {
             }
             back();
         }
+        return true;
     }
-    bool parseVarListRest()
-    {
+    bool parseVarListRest() {
         if (handleToken().first == ",") {
             next();
             if (parseTYPE()) {
@@ -198,8 +201,7 @@ class TopParser : protected Module {
         }
         return true;
     }
-    bool parseVarList()
-    {
+    bool parseVarList() {
         if (parseTYPE()) {
             next();
             if (handleToken().first == "id") {
@@ -212,8 +214,7 @@ class TopParser : protected Module {
         }
         return true;
     }
-    bool parseFunDec()
-    {
+    bool parseFunDec() {
         if (handleToken().first == "(") {
             next();
             if (parseVarList())
@@ -225,8 +226,262 @@ class TopParser : protected Module {
         }
         return false;
     }
-    bool parseCompSt()
-    {
+
+    bool parseFactor() {
+        if (handleToken().first == "id" || handleToken().first == "INTC" || handleToken().first == "DECI") {
+            next();
+            return true;
+        }
+        else {
+            if (handleToken().first == "(") {
+                next();
+                if (parseExp())
+                    if (handleToken().first == ")") {
+                        next();
+                        return true;
+                    }
+                back();
+            }
+        }
+        return false;
+    }
+    bool parseTermRest() {
+        if (handleToken().first == "*" || handleToken().first == "/") {
+            next();
+            if (parseFactor())
+                return true;
+            back();
+        }
+        return false;
+    }
+    bool parseTerm() {
+        if (parseFactor()) {
+            while (parseTermRest()) {
+
+            }
+            return true;
+        }
+        return false;
+    }
+    bool parseExpRest() {
+        if (handleToken().first == "+" || handleToken().first == "-") {
+            next();
+            if (parseTerm())
+                return true;
+            back();
+        }
+        return false;
+    }
+    bool parseExp() {
+        if (parseTerm()) {
+            while (parseExpRest()) {
+
+            }
+            return true;
+        }
+        return false;
+    }
+    bool parseCompExp() {
+        if (parseExp()) {
+            if (parseCmpOp()) {
+                next();
+                if (parseExp())
+                    return true;
+                back();
+            }
+        }
+        return false;
+    }
+    bool parseRelationExp() {
+        if (parseCompExp()) {
+            if (handleToken().first == "and") {
+                next();
+                if (parseRelationExp())
+                    return true;
+                back();
+            }
+        }
+        return false;
+    }
+    bool parseConditionalExpRest() {
+        if (handleToken().first == "or") {
+            next();
+            if (parseRelationExp()) {
+                return true;
+            }
+            back();
+        }
+        return false;
+    }
+    bool parseConditionalExp() {
+        if (parseRelationExp()) {
+            while (parseConditionalExpRest()) {
+            }
+            return true;
+        }
+        return false;
+    }
+    bool parseConditionalStmt() {
+        if (handleToken().first == "if") {
+            next();
+            if (handleToken().first == "(") {
+                next();
+                if (parseConditionalExp())
+                    if (handleToken().first == ")") {
+                        next();
+                        if (parseStmt()) {
+                            if (handleToken().first == "else") {
+                                next();
+                                if (parseStmt())
+                                    return true;
+                                back();
+                            }
+                            return true;
+                        }
+                        back();
+                    }
+                back();
+            }
+            back();
+        }
+        return false;
+    }
+    bool parseActParamList() {
+        if (parseExp()) {
+            while (handleToken().first == ",") {
+                next();
+                if (!parseExp()) {
+                    back();
+                    break;
+                }
+            }
+            return true;
+        }
+        return true;
+    }
+    bool parseCallStmt() {
+        if (handleToken().first == "id") {
+            next();
+            if (handleToken().first == "(") {
+                next();
+                if (parseActParamList()) {
+                    if (handleToken().first == ")") {
+                        next();
+                        if (handleToken().first == ";") {
+                            next();
+                            return true;
+                        }
+                        back();
+                    }
+                }
+                back();
+            }
+            back();
+        }
+        return false;
+    }
+    bool parseLoopStmt() {
+        if (handleToken().first == "while") {
+            next();
+            if (handleToken().first == "(") {
+                next();
+                if (parseConditionalExp()) {
+                    if (handleToken().first == ")") {
+                        next();
+                        if (parseStmt()) {
+                            return true;
+                        }
+                        back();
+                    }
+                }
+                back();
+            }
+            back();
+        }
+        return false;
+    }
+    bool parseAssignmentStmt() {
+        if (handleToken().first == "id") {
+            next();
+            if (handleToken().first == "=") {
+                next();
+                if (parseExp())
+                    if (handleToken().first == ";") {
+                        next();
+                        return true;
+                    }
+                back();
+            }
+            back();
+        }
+        return false;
+    }
+    bool parseReturnStmt() {
+        if (handleToken().first == "return") {
+            next();
+            if (parseExp())
+                if (handleToken().first == ";") {
+                    next();
+                    return true;
+                }
+            return true;
+        }
+        return false;
+    }
+    bool parseBreakStmt() {
+        if (handleToken().first == "break") {
+            next();
+            if (handleToken().first == ";") {
+                next();
+                return true;
+            }
+            back();
+        }
+        return false;
+    }
+    bool parseLocalVariableDeclaration() {
+        if (parseTYPE()) {
+            next();
+            if (handleToken().first == "id") {
+                next();
+                while (handleToken().first == ",") {
+                    next();
+                    if (handleToken().first == "id") {
+
+                    }
+                    else {
+                        back();
+                        break;
+                    }
+                }
+                if (handleToken().first == ";") {
+                    next();
+                    return true;
+                }
+                back();
+            }
+            back();
+        }
+        return false;
+    }
+    bool parseStmt() {
+        if (handleToken().first == ";") {
+            next();
+            return true;
+        }
+        if (parseConditionalStmt() || parseLoopStmt() || parseCallStmt() || parseAssignmentStmt() || parseReturnStmt() || parseBreakStmt() || parseLocalVariableDeclaration() || parseCompSt()) {
+            return true;
+        }
+        return false;
+    }
+    bool parseStmtList() {
+        if (parseStmt()) {
+            if (parseStmtList())
+                return true;
+        }
+        return true;
+    }
+    bool parseCompSt() {
         if (handleToken().first == "{") {
             next();
             if (parseStmtList()) {
@@ -240,8 +495,7 @@ class TopParser : protected Module {
         return false;
     }
 
-    bool parseExtDef()
-    {
+    bool parseExtDef() {
         // std::cout << "parseExtDef --> ";
         if (parseTYPE()) {
             next();
@@ -261,8 +515,7 @@ class TopParser : protected Module {
         }
         return false;
     }
-    bool parseExtDefList()
-    {
+    bool parseExtDefList() {
         // std::cout << "parseExtDefList --> ";
         if (parseExtDef()) {
             if (parseExtDefList())
@@ -273,22 +526,26 @@ class TopParser : protected Module {
         }
         return true;
     }
-    bool parseProgram()
-    {
+    bool parseProgram() {
         // std::cout << "parseProgram --> ";
         if (parseExtDefList()) {
             return true;
         }
         return false;
     }
-    void lparse()
-    {
+    void lparse() {
         try {
-            parseProgram();
+            if (parseProgram() && i == TL.tok_lis.size() - 1) {
+                std::cout << "YES";
+                return;
+            }
+            else {
+                std::cout << "NO\n";
+                std::cerr << "Error at " << TL.tok_lis[maxi].line << ":" << TL.tok_lis[maxi].column << "\n";
+            }
         }
-        catch (const std::string e) {
-            std::cerr << e << "\n";
-            std::cout << "NO";
+        catch (const char* e) {
+            std::cerr << "Caught Error: " << e << "\n";
         }
     }
 };
