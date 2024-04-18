@@ -137,7 +137,7 @@ class TopParser : protected Module {
     {
         i++;
     }
-    void last()
+    void back()
     {
         i--;
     }
@@ -175,11 +175,71 @@ class TopParser : protected Module {
                 next();
                 if (parseExtDefRest())
                     return true;
-                last();
+                back();
             }
-            last();
+            back();
         }
     }
+    bool parseVarListRest()
+    {
+        if (handleToken().first == ",") {
+            next();
+            if (parseTYPE()) {
+                next();
+                if (handleToken().first == "id") {
+                    next();
+                    if (parseVarListRest())
+                        return true;
+                    back();
+                }
+                back();
+            }
+            back();
+        }
+        return true;
+    }
+    bool parseVarList()
+    {
+        if (parseTYPE()) {
+            next();
+            if (handleToken().first == "id") {
+                next();
+                if (parseVarListRest())
+                    return true;
+                back();
+            }
+            back();
+        }
+        return true;
+    }
+    bool parseFunDec()
+    {
+        if (handleToken().first == "(") {
+            next();
+            if (parseVarList())
+                if (handleToken().first == ")") {
+                    next();
+                    return true;
+                }
+            back();
+        }
+        return false;
+    }
+    bool parseCompSt()
+    {
+        if (handleToken().first == "{") {
+            next();
+            if (parseStmtList()) {
+                if (handleToken().first == "}") {
+                    next();
+                    return true;
+                }
+            }
+            back();
+        }
+        return false;
+    }
+
     bool parseExtDef()
     {
         // std::cout << "parseExtDef --> ";
@@ -192,9 +252,12 @@ class TopParser : protected Module {
                         next();
                         return true;
                     }
-                last();
+                back();
             }
-            last();
+            if (parseFunDec())
+                if (parseCompSt())
+                    return true;
+            back();
         }
         return false;
     }
