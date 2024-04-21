@@ -64,4 +64,4 @@ $ make start
 ```
 
 ## How to input the code
-Modify the following file: `Common/raw_code.txt`
+Modify the following file: `Data/raw_code.txt`
