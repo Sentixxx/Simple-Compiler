@@ -429,6 +429,9 @@ class TopParser : public Module {
                         next();
                         return true;
                     }
+                if (parseFunDec())
+                    if (parseCompSt())
+                        return true;
                 back();
             }
             if (parseFunDec())
