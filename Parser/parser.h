@@ -153,38 +153,34 @@ class TopParser : public Module {
         }
         return false;
     }
-    bool parseTermRest()
-    {
-        if (handleToken() == "*" || handleToken() == "/") {
-            next();
-            if (parseFactor())
-                return true;
-            back();
-        }
-        return false;
-    }
     bool parseTerm()
     {
         if (parseFactor()) {
-            while (parseTermRest()) {}
+            while (handleToken() == "*" || handleToken() == "/") {
+                next();
+                if (!parseFactor()) {
+                    back();
+                    break;
+                }
+            }
             return true;
         }
         return false;
     }
     bool parseExpRest()
     {
-        if (handleToken() == "+" || handleToken() == "-") {
-            next();
-            if (parseTerm())
-                return true;
-            back();
-        }
         return false;
     }
     bool parseExp()
     {
         if (parseTerm()) {
-            while (parseExpRest()) {}
+            while (handleToken() == "+" || handleToken() == "-") {
+                next();
+                if (!parseTerm()) {
+                    back();
+                    break;
+                }
+            }
             return true;
         }
         return false;
@@ -204,30 +200,27 @@ class TopParser : public Module {
     bool parseRelationExp()
     {
         if (parseCompExp()) {
-            if (handleToken() == "and") {
+            while (handleToken() == "and") {
                 next();
-                if (parseRelationExp())
-                    return true;
-                back();
+                if (!parseRelationExp()) {
+                    back();
+                    break;
+                }
             }
-        }
-        return false;
-    }
-    bool parseConditionalExpRest()
-    {
-        if (handleToken() == "or") {
-            next();
-            if (parseRelationExp()) {
-                return true;
-            }
-            back();
+            return true;
         }
         return false;
     }
     bool parseConditionalExp()
     {
         if (parseRelationExp()) {
-            while (parseConditionalExpRest()) {}
+            while (handleToken() == "or") {
+                next();
+                if (!parseRelationExp()) {
+                    back();
+                    break;
+                }
+            }
             return true;
         }
         return false;
@@ -434,9 +427,6 @@ class TopParser : public Module {
                         return true;
                 back();
             }
-            if (parseFunDec())
-                if (parseCompSt())
-                    return true;
             back();
         }
         return false;
