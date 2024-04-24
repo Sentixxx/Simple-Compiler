@@ -137,18 +137,18 @@ private:
             Exp();
         }
         else {
-            throw "Error: Expected CmOp , but find " + handleToken() + " at " + std::to_string(TL.tok_lis[i].line) + ":" + std::to_string(TL.tok_lis[i].column) + "\n";
+            throw "Error: Expected Compare Operator , but find " + handleToken() + " at " + std::to_string(TL.tok_lis[i].line) + ":" + std::to_string(TL.tok_lis[i].column) + "\n";
         }
     }
     void RelationExp() {
         CompExp();
         while (handleToken() == "and") {
             next();
-            if (handleToken() == "CmOp") {
+            if (handleToken() == "id" || handleToken() == "INTC" || handleToken() == "DECI" || handleToken() == "(") {
                 CompExp();
             }
             else {
-                throw "Error: Expected CmOp , but find " + handleToken() + " at " + std::to_string(TL.tok_lis[i].line) + ":" + std::to_string(TL.tok_lis[i].column) + "\n";
+                throw "Error: Expected Compare Expression , but find " + handleToken() + " at " + std::to_string(TL.tok_lis[i].line) + ":" + std::to_string(TL.tok_lis[i].column) + "\n";
             }
         }
     }
@@ -156,11 +156,11 @@ private:
         RelationExp();
         while (handleToken() == "or") {
             next();
-            if (handleToken() == "CmOp") {
+            if (handleToken() == "id" || handleToken() == "INTC" || handleToken() == "DECI" || handleToken() == "(") {
                 RelationExp();
             }
             else {
-                throw "Error: Expected CmOp , but find " + handleToken() + " at " + std::to_string(TL.tok_lis[i].line) + ":" + std::to_string(TL.tok_lis[i].column) + "\n";
+                throw "Error: Expected Compare Expression , but find " + handleToken() + " at " + std::to_string(TL.tok_lis[i].line) + ":" + std::to_string(TL.tok_lis[i].column) + "\n";
             }
         }
     }
