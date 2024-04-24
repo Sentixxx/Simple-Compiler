@@ -401,7 +401,7 @@ public:
         }
         catch (const std::string e) {
             std::cout << "NO\n";
-            std::cerr << "Caught Error: " << e << "\n";
+            std::cerr << "Caught " << e << "\n";
         }
     }
 };
