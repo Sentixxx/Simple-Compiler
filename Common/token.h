@@ -66,7 +66,7 @@ public:
     };
     std::pair<std::string , std::string> getTokenType(int i) {
         if (i >= this->tok_lis.size()) {
-            return { "Out of range!", "Out of range!" };
+            return { "end of file", "end of file" };
         }
         return { tok_transformed[this->tok_lis[i].token],
                 this->tok_lis[i].lexeme };
