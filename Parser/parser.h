@@ -37,10 +37,12 @@ private:
     }
 
     void next() {
+        std::cerr << "trying " + handleToken() + "\n";
         if (i == TL.tok_lis.size()) {
             throw "Error: Unexpected end of file\n";
             return;
         }
+        std::cerr << "success " + handleToken() + "\n";
         i++;
     }
 
@@ -55,7 +57,7 @@ private:
                         varList();
                     }
                     else {
-                        throw "Error: Expected id, but find" + handleToken() + "\n";
+                        throw "Error: Expected id, but find " + handleToken() + " at " + std::to_string(TL.tok_lis[i].line) + ":" + std::to_string(TL.tok_lis[i].column) + "\n";
                     }
                 }
                 else {
@@ -63,7 +65,7 @@ private:
                 }
             }
             else {
-                throw "Error: Expected id , but find" + handleToken() + "\n";
+                throw "Error: Expected id , but find " + handleToken() + " at " + std::to_string(TL.tok_lis[i].line) + ":" + std::to_string(TL.tok_lis[i].column) + "\n";
             }
         }
         else {
@@ -79,14 +81,88 @@ private:
             next();
         }
         else {
-            throw "Error: Expected ) , but find" + handleToken() + "\n";
+            throw "Error: Expected ) , but find " + handleToken() + " at " + std::to_string(TL.tok_lis[i].line) + ":" + std::to_string(TL.tok_lis[i].column) + "\n";
         }
     }
 
-    void Stmt();
+    void Factor() {
+        if (handleToken() == "INTC" || handleToken() == "DECI" || handleToken() == "id") {
+            next();
+        }
+        else if (handleToken() == "(") {
+            next();
+            Exp();
+            if (handleToken() == ")") {
+                next();
+            }
+            else {
+                throw "Error: Expected ) , but find " + handleToken() + " at " + std::to_string(TL.tok_lis[i].line) + ":" + std::to_string(TL.tok_lis[i].column) + "\n";
+            }
+        }
+        else {
+            throw "Error: Expected Factor , but find " + handleToken() + " at " + std::to_string(TL.tok_lis[i].line) + ":" + std::to_string(TL.tok_lis[i].column) + "\n";
+        }
+    }
 
+    void Term() {
+        if (handleToken() == "INTC" || handleToken() == "DECI" || handleToken() == "id" || handleToken() == "(") {
+            Factor();
+            while (handleToken() == "*" || handleToken() == "/") {
+                next();
+                if (handleToken() == "INTC" || handleToken() == "DECI" || handleToken() == "id" || handleToken() == "(")
+                    Factor();
+                else
+                    throw "Error: Expected Factor , but find " + handleToken() + " at " + std::to_string(TL.tok_lis[i].line) + ":" + std::to_string(TL.tok_lis[i].column) + "\n";
+            }
+        }
+        else
+            throw "Error: Expected Factor , but find " + handleToken() + " at " + std::to_string(TL.tok_lis[i].line) + ":" + std::to_string(TL.tok_lis[i].column) + "\n";
+    }
+
+    void Exp() {
+        Term();
+        while (handleToken() == "+" || handleToken() == "-") {
+            next();
+            if (handleToken() == "INTC" || handleToken() == "DECI" || handleToken() == "id" || handleToken() == "(")
+                Term();
+            else
+                throw "Error: Expected Factor , but find " + handleToken() + " at " + std::to_string(TL.tok_lis[i].line) + ":" + std::to_string(TL.tok_lis[i].column) + "\n";
+        }
+    }
+
+    void CompExp() {
+        Exp();
+        if (handleToken() == "CmOp") {
+            next();
+            Exp();
+        }
+        else {
+            throw "Error: Expected CmOp , but find " + handleToken() + " at " + std::to_string(TL.tok_lis[i].line) + ":" + std::to_string(TL.tok_lis[i].column) + "\n";
+        }
+    }
+    void RelationExp() {
+        CompExp();
+        while (handleToken() == "and") {
+            next();
+            if (handleToken() == "CmOp") {
+                CompExp();
+            }
+            else {
+                throw "Error: Expected CmOp , but find " + handleToken() + " at " + std::to_string(TL.tok_lis[i].line) + ":" + std::to_string(TL.tok_lis[i].column) + "\n";
+            }
+        }
+    }
     void ConditionalExp() {
-
+        RelationExp();
+        while (handleToken() == "or") {
+            next();
+            if (handleToken() == "CmOp") {
+                RelationExp();
+            }
+            else {
+                throw "Error: Expected CmOp , but find " + handleToken() + " at " + std::to_string(TL.tok_lis[i].line) + ":" + std::to_string(TL.tok_lis[i].column) + "\n";
+            }
+        }
     }
 
     void ConditionalStmt() {
@@ -103,7 +179,22 @@ private:
                 }
             }
             else {
-                throw "Error: Expected ) , but find" + handleToken() + "\n";
+                throw "Error: Expected ) , but find " + handleToken() + " at " + std::to_string(TL.tok_lis[i].line) + ":" + std::to_string(TL.tok_lis[i].column) + "\n";
+            }
+        }
+    }
+
+    void ArgParamList() {
+        if (handleToken() == "INTC" || handleToken() == "DECI" || handleToken() == "id" || handleToken() == "(") {
+            Exp();
+            if (handleToken() == ",") {
+                next();
+                if (handleToken() == "INTC" || handleToken() == "DECI" || handleToken() == "id" || handleToken() == "(")
+                    ArgParamList();
+                else {
+                    throw "Error: Expected Expression , but find " + handleToken() + " at " + std::to_string(TL.tok_lis[i].line) + ":" + std::to_string(TL.tok_lis[i].column) + "\n";
+
+                }
             }
         }
     }
@@ -116,8 +207,106 @@ private:
         else if (handleToken() == "if") {
             ConditionalStmt();
         }
+        else if (handleToken() == "break") {
+            next();
+            if (handleToken() == ";") {
+                next();
+            }
+            else {
+                throw "Error: Expected ; , but find " + handleToken() + " at " + std::to_string(TL.tok_lis[i].line) + ":" + std::to_string(TL.tok_lis[i].column) + "\n";
+            }
+        }
+        else if (handleToken() == "return") {
+            next();
+            if (handleToken() == "INTC" || handleToken() == "DECI" || handleToken() == "id" || handleToken() == "(")
+                Exp();
+            if (handleToken() == ";") {
+                next();
+            }
+            else {
+                throw "Error: Expected ; , but find " + handleToken() + " at " + std::to_string(TL.tok_lis[i].line) + ":" + std::to_string(TL.tok_lis[i].column) + "\n";
+            }
+        }
+        else if (handleToken() == "while") {
+            next();
+            if (handleToken() == "(") {
+                next();
+                ConditionalExp();
+                if (handleToken() == ")") {
+                    next();
+                    Stmt();
+                }
+                else {
+                    throw "Error: Expected ) , but find " + handleToken() + " at " + std::to_string(TL.tok_lis[i].line) + ":" + std::to_string(TL.tok_lis[i].column) + "\n";
+                }
+            }
+            else {
+                throw "Error: Expected ( , but find " + handleToken() + " at " + std::to_string(TL.tok_lis[i].line) + ":" + std::to_string(TL.tok_lis[i].column) + "\n";
+
+            }
+        }
+        else if (handleToken() == "id") {
+            next();
+            if (handleToken() == "=") {
+                next();
+                Exp();
+                if (handleToken() == ";") {
+                    next();
+                }
+                else {
+                    throw "Error: Expected ; , but find " + handleToken() + " at " + std::to_string(TL.tok_lis[i].line) + ":" + std::to_string(TL.tok_lis[i].column) + "\n";
+                }
+            }
+            else if (handleToken() == "(") {
+                next();
+                ArgParamList();
+                if (handleToken() == ")") {
+                    next();
+                    if (handleToken() == ";")
+                        next();
+                    else {
+                        throw "Error: Expected ; , but find " + handleToken() + " at " + std::to_string(TL.tok_lis[i].line) + ":" + std::to_string(TL.tok_lis[i].column) + "\n";
+                    }
+                }
+                else {
+                    throw "Error: Expected ) , but find " + handleToken() + " at " + std::to_string(TL.tok_lis[i].line) + ":" + std::to_string(TL.tok_lis[i].column) + "\n";
+                }
+            }
+            else {
+                throw "Error: Expected = or ( , but find " + handleToken() + " at " + std::to_string(TL.tok_lis[i].line) + ":" + std::to_string(TL.tok_lis[i].column) + "\n";
+
+            }
+        }
+        else if (handleToken() == "{") {
+            CompSt();
+        }
+        else if (handleToken() == "TYPE") {
+            next();
+            if (handleToken() == "id") {
+                next();
+                while (handleToken() == ",") {
+                    next();
+                    if (handleToken() == "id") {
+                        next();
+                    }
+                    else {
+                        throw "Error: Expected id , but find " + handleToken() + " at " + std::to_string(TL.tok_lis[i].line) + ":" + std::to_string(TL.tok_lis[i].column) + "\n";
+                    }
+                }
+                if (handleToken() == ";") {
+                    next();
+                }
+                else {
+                    throw "Error: Expected ; , but find " + handleToken() + " at " + std::to_string(TL.tok_lis[i].line) + ":" + std::to_string(TL.tok_lis[i].column) + "\n";
+                }
+            }
+            else {
+                throw "Error: Expected id , but find " + handleToken() + " at " + std::to_string(TL.tok_lis[i].line) + ":" + std::to_string(TL.tok_lis[i].column) + "\n";
+            }
+
+        }
         else {
-            throw "Error: Expected ( , but find" + handleToken() + "\n";
+            throw "Error: Expected Stmt , but find " + handleToken() + " at " + std::to_string(TL.tok_lis[i].line) + ":" + std::to_string(TL.tok_lis[i].column) + "\n";
         }
     }
 
@@ -143,11 +332,11 @@ private:
                 return;
             }
             else {
-                throw "Error: Expected } , but find" + handleToken() + "\n";
+                throw "Error: Expected } , but find " + handleToken() + " at " + std::to_string(TL.tok_lis[i].line) + ":" + std::to_string(TL.tok_lis[i].column) + "\n";
             }
         }
         else {
-            throw "Error: Expected { , but find" + handleToken() + "\n";
+            throw "Error: Expected { , but find " + handleToken() + " at " + std::to_string(TL.tok_lis[i].line) + ":" + std::to_string(TL.tok_lis[i].column) + "\n";
         }
     }
 
@@ -164,14 +353,15 @@ private:
                 ExtDef();
             }
             else if (handleToken() == ";") {
+                next();
                 return;
             }
             else {
-                throw "Error: Expected ( or , or ; , but find" + handleToken() + "\n";
+                throw "Error: Expected ( or , or ; , but find " + handleToken() + " at " + std::to_string(TL.tok_lis[i].line) + ":" + std::to_string(TL.tok_lis[i].column) + "\n";
             }
         }
         else {
-            throw "Error: Expected id , but find" + handleToken() + "\n";
+            throw "Error: Expected id , but find " + handleToken() + " at " + std::to_string(TL.tok_lis[i].line) + ":" + std::to_string(TL.tok_lis[i].column) + "\n";
         }
     }
 
@@ -187,9 +377,7 @@ private:
     }
 
     void Program() {
-        while (i < TL.tok_lis.size()) {
-            ExtDefList();
-        }
+        ExtDefList();
     }
 
 
@@ -203,17 +391,16 @@ public:
     void lparse() {
         try {
             Program();
-            if (i == TL.tok_lis.size() - 1) {
+            if (i == TL.tok_lis.size()) {
                 std::cout << "YES";
                 return;
             }
             else {
-                std::cout << "NO\n";
-                std::cerr << "Error at " << TL.tok_lis[maxi].line << ":"
-                    << TL.tok_lis[maxi].column << "\n";
+                std::cout << "NO";
             }
         }
-        catch (const char* e) {
+        catch (const std::string e) {
+            std::cout << "NO\n";
             std::cerr << "Caught Error: " << e << "\n";
         }
     }
