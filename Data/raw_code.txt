@@ -1,20 +1,18 @@
 /*ha*/
 int a;
 int a;
-int a,b ;
-int flag;
-int max(float a,int b)
+int a,b, ;
+ flag;
+int max(flat a,int b)
 {
-    if (a>b)
+    if (a>>b)
         if (a>c)
             a=b;
     else
         a=b;
     while(a==2)
-        while(a==2 and a == 2)
-            while(a!=2) {
-                ;
-            }
+        while(a==2 and and a == 2)
+            while(a!=2)
 }
 
 int hello()
@@ -23,4 +21,4 @@ int hello()
     return 1 / 2;
 }
 float b;
-string x;
+string x
