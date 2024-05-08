@@ -1,1 +1,4 @@
-int c;
+int main() {
+    if(a > b)
+        a = 1;
+}

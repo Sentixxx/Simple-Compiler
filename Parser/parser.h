@@ -4,20 +4,19 @@
 #ifndef PARSER_H
 #define PARSER_H
 
-#include "../Common/compiler.h"
-#include "../Common/error.h"
-#include "../Common/token.h"
 #include <fstream>
 #include <iostream>
 #include <string>
+#include "../Common/compiler.h"
+#include "../Common/error.h"
+#include "../Common/token.h"
 
 class TopParser : public Module {
-  private:
-    int         i    = 0;
-    int         maxi = 0;
-    TokenList&  TL;
-    std::string handleToken()
-    {
+   private:
+    int i = 0;
+    int maxi = 0;
+    TokenList& TL;
+    std::string handleToken() {
         std::pair<std::string, std::string> token = TL.getTokenType(i);
         if (token.first == "number")
             return "INTC";
@@ -25,38 +24,32 @@ class TopParser : public Module {
             return "DECI";
         else if (token.first == "identifier") {
             return "id";
-        }
-        else {
+        } else {
             return token.second;
         }
     }
-    void next()
-    {
+    void next() {
         maxi = std::max(i, maxi);
         if (i == TL.tok_lis.size() - 1) {
             std::cerr << "reach the end of file!\n";
-        }
-        else {
+        } else {
             std::cout << "try handle: " << handleToken() << "\n";
             i++;
         }
     }
-    void back()
-    {
+    void back() {
         i--;
         std::cerr << "Fail handle: " << handleToken() << "\n";
     }
 
-  public:
-    TopParser(TokenList& TL) : TL(TL)
-    {
-        this->inputFile  = "../Data/lexer_token.out";
+   public:
+    TopParser(TokenList& TL) : TL(TL) {
+        this->inputFile = "../Data/lexer_token.out";
         this->outputFile = "../Data/parser_list.out";
-        this->is         = std::ifstream(inputFile);
-        this->os         = std::ofstream(outputFile);
+        this->is = std::ifstream(inputFile);
+        this->os = std::ofstream(outputFile);
     }
-    bool parseTYPE()
-    {
+    bool parseTYPE() {
         // std::cout << "parseTYPE --> ";
         if (handleToken() == "int" || handleToken() == "float" ||
             handleToken() == "string") {
@@ -64,8 +57,7 @@ class TopParser : public Module {
         }
         return false;
     }
-    bool parseCmpOp()
-    {
+    bool parseCmpOp() {
         if (handleToken() == "==" || handleToken() == "!=" ||
             handleToken() == "<" || handleToken() == ">" ||
             handleToken() == "<=" || handleToken() == ">=") {
@@ -73,8 +65,7 @@ class TopParser : public Module {
         }
         return false;
     }
-    bool parseExtDefRest()
-    {
+    bool parseExtDefRest() {
         if (handleToken() == ",") {
             next();
             if (handleToken() == "id") {
@@ -87,8 +78,7 @@ class TopParser : public Module {
         }
         return true;
     }
-    bool parseVarListRest()
-    {
+    bool parseVarListRest() {
         if (handleToken() == ",") {
             next();
             if (parseTYPE()) {
@@ -105,8 +95,7 @@ class TopParser : public Module {
         }
         return true;
     }
-    bool parseVarList()
-    {
+    bool parseVarList() {
         if (parseTYPE()) {
             next();
             if (handleToken() == "id") {
@@ -119,8 +108,7 @@ class TopParser : public Module {
         }
         return true;
     }
-    bool parseFunDec()
-    {
+    bool parseFunDec() {
         if (handleToken() == "(") {
             next();
             if (parseVarList())
@@ -133,14 +121,12 @@ class TopParser : public Module {
         return false;
     }
 
-    bool parseFactor()
-    {
+    bool parseFactor() {
         if (handleToken() == "id" || handleToken() == "INTC" ||
             handleToken() == "DECI") {
             next();
             return true;
-        }
-        else {
+        } else {
             if (handleToken() == "(") {
                 next();
                 if (parseExp())
@@ -153,8 +139,7 @@ class TopParser : public Module {
         }
         return false;
     }
-    bool parseTerm()
-    {
+    bool parseTerm() {
         if (parseFactor()) {
             while (handleToken() == "*" || handleToken() == "/") {
                 next();
@@ -167,12 +152,7 @@ class TopParser : public Module {
         }
         return false;
     }
-    bool parseExpRest()
-    {
-        return false;
-    }
-    bool parseExp()
-    {
+    bool parseExp() {
         if (parseTerm()) {
             while (handleToken() == "+" || handleToken() == "-") {
                 next();
@@ -185,8 +165,7 @@ class TopParser : public Module {
         }
         return false;
     }
-    bool parseCompExp()
-    {
+    bool parseCompExp() {
         if (parseExp()) {
             if (parseCmpOp()) {
                 next();
@@ -197,8 +176,7 @@ class TopParser : public Module {
         }
         return false;
     }
-    bool parseRelationExp()
-    {
+    bool parseRelationExp() {
         if (parseCompExp()) {
             while (handleToken() == "and") {
                 next();
@@ -211,8 +189,7 @@ class TopParser : public Module {
         }
         return false;
     }
-    bool parseConditionalExp()
-    {
+    bool parseConditionalExp() {
         if (parseRelationExp()) {
             while (handleToken() == "or") {
                 next();
@@ -225,8 +202,7 @@ class TopParser : public Module {
         }
         return false;
     }
-    bool parseConditionalStmt()
-    {
+    bool parseConditionalStmt() {
         if (handleToken() == "if") {
             next();
             if (handleToken() == "(") {
@@ -251,8 +227,7 @@ class TopParser : public Module {
         }
         return false;
     }
-    bool parseActParamList()
-    {
+    bool parseActParamList() {
         if (parseExp()) {
             while (handleToken() == ",") {
                 next();
@@ -265,8 +240,7 @@ class TopParser : public Module {
         }
         return true;
     }
-    bool parseCallStmt()
-    {
+    bool parseCallStmt() {
         if (handleToken() == "id") {
             next();
             if (handleToken() == "(") {
@@ -287,8 +261,7 @@ class TopParser : public Module {
         }
         return false;
     }
-    bool parseLoopStmt()
-    {
+    bool parseLoopStmt() {
         if (handleToken() == "while") {
             next();
             if (handleToken() == "(") {
@@ -308,8 +281,7 @@ class TopParser : public Module {
         }
         return false;
     }
-    bool parseAssignmentStmt()
-    {
+    bool parseAssignmentStmt() {
         if (handleToken() == "id") {
             next();
             if (handleToken() == "=") {
@@ -325,8 +297,7 @@ class TopParser : public Module {
         }
         return false;
     }
-    bool parseReturnStmt()
-    {
+    bool parseReturnStmt() {
         if (handleToken() == "return") {
             next();
             if (parseExp())
@@ -338,8 +309,7 @@ class TopParser : public Module {
         }
         return false;
     }
-    bool parseBreakStmt()
-    {
+    bool parseBreakStmt() {
         if (handleToken() == "break") {
             next();
             if (handleToken() == ";") {
@@ -350,16 +320,15 @@ class TopParser : public Module {
         }
         return false;
     }
-    bool parseLocalVariableDeclaration()
-    {
+    bool parseLocalVariableDeclaration() {
         if (parseTYPE()) {
             next();
             if (handleToken() == "id") {
                 next();
                 while (handleToken() == ",") {
                     next();
-                    if (handleToken() == "id") {}
-                    else {
+                    if (handleToken() == "id") {
+                    } else {
                         back();
                         break;
                     }
@@ -374,8 +343,7 @@ class TopParser : public Module {
         }
         return false;
     }
-    bool parseStmt()
-    {
+    bool parseStmt() {
         if (handleToken() == ";") {
             next();
             return true;
@@ -387,16 +355,14 @@ class TopParser : public Module {
         }
         return false;
     }
-    bool parseStmtList()
-    {
+    bool parseStmtList() {
         if (parseStmt()) {
             if (parseStmtList())
                 return true;
         }
         return true;
     }
-    bool parseCompSt()
-    {
+    bool parseCompSt() {
         if (handleToken() == "{") {
             next();
             if (parseStmtList()) {
@@ -410,8 +376,7 @@ class TopParser : public Module {
         return false;
     }
 
-    bool parseExtDef()
-    {
+    bool parseExtDef() {
         // std::cout << "parseExtDef --> ";
         if (parseTYPE()) {
             next();
@@ -431,8 +396,7 @@ class TopParser : public Module {
         }
         return false;
     }
-    bool parseExtDefList()
-    {
+    bool parseExtDefList() {
         // std::cout << "parseExtDefList --> ";
         if (parseExtDef()) {
             if (parseExtDefList())
@@ -443,28 +407,24 @@ class TopParser : public Module {
         }
         return true;
     }
-    bool parseProgram()
-    {
+    bool parseProgram() {
         // std::cout << "parseProgram --> ";
         if (parseExtDefList()) {
             return true;
         }
         return false;
     }
-    void lparse()
-    {
+    void lparse() {
         try {
             if (parseProgram() && i == TL.tok_lis.size() - 1) {
                 std::cout << "YES";
                 return;
-            }
-            else {
+            } else {
                 std::cout << "NO\n";
                 std::cerr << "Error at " << TL.tok_lis[maxi].line << ":"
                           << TL.tok_lis[maxi].column << "\n";
             }
-        }
-        catch (const char* e) {
+        } catch (const char* e) {
             std::cerr << "Caught Error: " << e << "\n";
         }
     }
