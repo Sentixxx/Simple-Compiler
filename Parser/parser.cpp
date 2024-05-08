@@ -1,10 +1,9 @@
 #include "parser.h"
-#include <bits/stdc++.h>
 
 TokenList TL;
-TopParser PR(TL);
-int       main()
-{
+ATree AST;
+TopParser PR(TL , AST);
+int       main() {
     TL.read(PR.getIs());
     PR.lparse();
 }
