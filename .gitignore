@@ -4,8 +4,11 @@
 Parser/parser
 Lexer/lexer
 Parser/grammar
+*.gv
+*.pdf
 
 # output file
+*.out
 *.out
 
 
@@ -20,5 +23,5 @@ tempCodeRunnerFile.cpp
 .json
 
 # system ignore
-.DS_Strore
+.DS_Store
 Thnmbs.db

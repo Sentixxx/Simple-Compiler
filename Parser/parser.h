@@ -15,12 +15,14 @@
 
 class TopParser : public Module {
 private:
+    bool end = false;
     int i = 0;
     int maxi = 0;
     TokenList& TL;
     ATree& AST;
-    Node cur;
+    std::shared_ptr<Node> cur;
     std::stack<std::string> g;
+    std::stack<std::string> ans;
     std::string handleToken() {
         std::pair<std::string , std::string> token = TL.getTokenType(i);
         if (token.first == "number")
@@ -34,6 +36,13 @@ private:
             return token.second;
         }
     }
+    void in(std::string name) {
+        g.push(name);
+        // std::cout << "cur_in : " << cur->value << "\n";
+        cur = AST.addNode(cur , name);
+        // std::cout << "cur_in : " << cur->value << "\n";
+        //std::cout << "in: " << name << "\n";
+    }
     bool isToken(std::string s) {
         if (s == "TYPE" || s == "CmpOp" || s == "ExtDefRest" || s == "VarListRest" || s == "VarList" || s == "FunDec" || s == "Factor" || s == "Term" || s == "Exp" || s == "CompExp" || s == "RelationExp" || s == "ConditionalExp" || s == "ConditionalStmt" || s == "ActParamList" || s == "CallStmt" || s == "LoopStmt" || s == "AssignmentStmt" || s == "ReturnStmt" || s == "BreakStmt" || s == "LocalVariableDeclaration" || s == "Stmt" || s == "StmtList" || s == "CompSt" || s == "ExtDef" || s == "ExtDefList" || s == "Program") {
             return false;
@@ -43,38 +52,51 @@ private:
     void next() {
         maxi = std::max(i , maxi);
         if (i == TL.tok_lis.size() - 1) {
+            if (!end) {
+                g.push(TL.getTokenType(i).second);
+                AST.addLeafNode(cur , TL.tok_lis[i]);
+            }
+            end = true;
             // std::cerr << "reach the end of file!\n";
         }
         else {
+            end = false;
             g.push(TL.getTokenType(i).second);
-            //std::cout << "try handle: " << handleToken() << "\n";
+            AST.addLeafNode(cur , TL.tok_lis[i]);
             i++;
         }
     }
     void back() {
-        std::cerr << "FailHandle: " << g.top() << "\n";
+        // std::cerr << "FailHandle: " << g.top() << "\n";
+        AST.deleteNode(cur);
         g.pop();
         i--;
-        // std::cerr << "Fail handle: " << handleToken() << "\n";
     }
     bool True() {
-        if (g.empty()) {
-            throw "Empty stack!";
-        }
-        while (!g.empty() && isToken(g.top())) {
-            std::cout << "Complete: " << g.top() << "\n";
-            g.pop();
-        }
-        std::cout << "handle: " << g.top() << "\n";
-        g.pop();
+        cur = AST.backTrace(cur);
         return true;
     }
     bool False() {
         if (g.empty()) {
             throw "Empty stack!";
         }
+        //std::cout << "out:" << g.top() << "\n";
         g.pop();
+        cur = AST.deleteNode(cur);
         return false;
+    }
+    std::string handleFuncName(std::string name) {
+        std::string r = "";
+        int i = 0;
+        while (i < name.size() && name[i] != ':') {
+            i++;
+        }
+        i += 2;
+        while (i < name.size() && name[i] != '(') {
+            r += name[i];
+            i++;
+        }
+        return r;
     }
 
 public:
@@ -86,17 +108,16 @@ public:
         this->os = std::ofstream(outputFile);
     }
     bool TYPE() {
-        // std::cout << "TYPE --> ";
-
-        g.push("TYPE");
+        in(handleFuncName(__PRETTY_FUNCTION__));
         if (handleToken() == "int" || handleToken() == "float" ||
             handleToken() == "string") {
+            next();
             return True();
         }
         return False();
     }
     bool CmpOp() {
-        g.push("CmpOp");
+        in(handleFuncName(__PRETTY_FUNCTION__));
         if (handleToken() == "==" || handleToken() == "!=" ||
             handleToken() == "<" || handleToken() == ">" ||
             handleToken() == "<=" || handleToken() == ">=") {
@@ -105,8 +126,7 @@ public:
         return False();
     }
     bool ExtDefRest() {
-        g.push("ExtDefRest");
-
+        in(handleFuncName(__PRETTY_FUNCTION__));
         if (handleToken() == ",") {
             next();
             if (handleToken() == "id") {
@@ -117,15 +137,15 @@ public:
             }
             back();
         }
-        return True();
+
+        return False();
     }
     bool VarListRest() {
-        g.push("VarListRest");
-
+        in(handleFuncName(__PRETTY_FUNCTION__));
         if (handleToken() == ",") {
             next();
             if (TYPE()) {
-                next();
+                // next();
                 if (handleToken() == "id") {
                     next();
                     if (VarListRest())
@@ -139,9 +159,9 @@ public:
         return True();
     }
     bool VarList() {
-        g.push("VarList");
+        in(handleFuncName(__PRETTY_FUNCTION__));
         if (TYPE()) {
-            next();
+            // next();
             if (handleToken() == "id") {
                 next();
                 if (VarListRest())
@@ -153,22 +173,25 @@ public:
         return True();
     }
     bool FunDec() {
-        g.push("FunDec");
-
-        if (handleToken() == "(") {
+        in(handleFuncName(__PRETTY_FUNCTION__));
+        if (handleToken() == "id") {
             next();
-            if (VarList())
-                if (handleToken() == ")") {
-                    next();
-                    return True();
-                }
+            if (handleToken() == "(") {
+                next();
+                if (VarList())
+                    if (handleToken() == ")") {
+                        next();
+                        return True();
+                    }
+                back();
+            }
             back();
         }
         return False();
     }
 
     bool Factor() {
-        g.push("Factor");
+        in(handleFuncName(__PRETTY_FUNCTION__));
 
         if (handleToken() == "id" || handleToken() == "INTC" ||
             handleToken() == "DECI") {
@@ -189,7 +212,7 @@ public:
         return False();
     }
     bool Term() {
-        g.push("Term");
+        in(handleFuncName(__PRETTY_FUNCTION__));
         if (Factor()) {
             while (handleToken() == "*" || handleToken() == "/") {
                 next();
@@ -203,7 +226,7 @@ public:
         return False();
     }
     bool Exp() {
-        g.push("Exp");
+        in(handleFuncName(__PRETTY_FUNCTION__));
         if (Term()) {
             while (handleToken() == "+" || handleToken() == "-") {
                 next();
@@ -217,7 +240,7 @@ public:
         return False();
     }
     bool CompExp() {
-        g.push("CompExp");
+        in(handleFuncName(__PRETTY_FUNCTION__));
         if (Exp()) {
             if (CmpOp()) {
                 next();
@@ -229,7 +252,7 @@ public:
         return False();
     }
     bool RelationExp() {
-        g.push("RelationExp");
+        in(handleFuncName(__PRETTY_FUNCTION__));
         if (CompExp()) {
             while (handleToken() == "and") {
                 next();
@@ -243,7 +266,7 @@ public:
         return False();
     }
     bool ConditionalExp() {
-        g.push("ConditionalExp");
+        in(handleFuncName(__PRETTY_FUNCTION__));
         if (RelationExp()) {
             while (handleToken() == "or") {
                 next();
@@ -257,7 +280,7 @@ public:
         return False();
     }
     bool ConditionalStmt() {
-        g.push("ConditionalStmt");
+        in(handleFuncName(__PRETTY_FUNCTION__));
         if (handleToken() == "if") {
             next();
             if (handleToken() == "(") {
@@ -283,7 +306,7 @@ public:
         return False();
     }
     bool ActParamList() {
-        g.push("ActParamList");
+        in(handleFuncName(__PRETTY_FUNCTION__));
         if (Exp()) {
             while (handleToken() == ",") {
                 next();
@@ -297,7 +320,7 @@ public:
         return True();
     }
     bool CallStmt() {
-        g.push("CallStmt");
+        in(handleFuncName(__PRETTY_FUNCTION__));
         if (handleToken() == "id") {
             next();
             if (handleToken() == "(") {
@@ -319,7 +342,7 @@ public:
         return False();
     }
     bool LoopStmt() {
-        g.push("LoopStmt");
+        in(handleFuncName(__PRETTY_FUNCTION__));
         if (handleToken() == "while") {
             next();
             if (handleToken() == "(") {
@@ -340,7 +363,7 @@ public:
         return False();
     }
     bool AssignmentStmt() {
-        g.push("AssignmentStmt");
+        in(handleFuncName(__PRETTY_FUNCTION__));
 
         if (handleToken() == "id") {
             next();
@@ -358,7 +381,7 @@ public:
         return False();
     }
     bool ReturnStmt() {
-        g.push("ReturnStmt");
+        in(handleFuncName(__PRETTY_FUNCTION__));
 
         if (handleToken() == "return") {
             next();
@@ -372,7 +395,7 @@ public:
         return False();
     }
     bool BreakStmt() {
-        g.push("BreakStmt");
+        in(handleFuncName(__PRETTY_FUNCTION__));
 
         if (handleToken() == "break") {
             next();
@@ -385,10 +408,10 @@ public:
         return False();
     }
     bool LocalVariableDeclaration() {
-        g.push("LocalVariableDeclaration");
+        in(handleFuncName(__PRETTY_FUNCTION__));
 
         if (TYPE()) {
-            next();
+            // next();
             if (handleToken() == "id") {
                 next();
                 while (handleToken() == ",") {
@@ -411,8 +434,7 @@ public:
         return False();
     }
     bool Stmt() {
-        g.push("Stmt");
-
+        in(handleFuncName(__PRETTY_FUNCTION__));
         if (handleToken() == ";") {
             next();
             return True();
@@ -425,7 +447,7 @@ public:
         return False();
     }
     bool StmtList() {
-        g.push("StmtList");
+        in(handleFuncName(__PRETTY_FUNCTION__));
 
         if (Stmt()) {
             if (StmtList())
@@ -434,7 +456,7 @@ public:
         return True();
     }
     bool CompSt() {
-        g.push("CompSt");
+        in(handleFuncName(__PRETTY_FUNCTION__));
 
         if (handleToken() == "{") {
             next();
@@ -450,29 +472,33 @@ public:
     }
 
     bool ExtDef() {
-        g.push("ExtDef");
-
+        in(handleFuncName(__PRETTY_FUNCTION__));
         // std::cout << "ExtDef --> ";
         if (TYPE()) {
-            next();
+            // next();
+            //cur = AST.backTrace(cur);
+            if (FunDec()) {
+                if (CompSt()) {
+                    return True();
+                }
+            }
             if (handleToken() == "id") {
                 next();
-                if (ExtDefRest())
+                if (ExtDefRest()) {
                     if (handleToken() == ";") {
                         next();
                         return True();
                     }
-                if (FunDec())
-                    if (CompSt())
-                        return True();
+                }
                 back();
             }
+
             back();
         }
         return False();
     }
     bool ExtDefList() {
-        g.push("ExtDefList");
+        in(handleFuncName(__PRETTY_FUNCTION__));
         // std::cout << "ExtDefList --> ";
         if (ExtDef()) {
             if (ExtDefList())
@@ -484,7 +510,7 @@ public:
         return True();
     }
     bool Program() {
-        g.push("Program");
+        in(handleFuncName(__PRETTY_FUNCTION__));
         // std::cout << "Program --> ";
         if (ExtDefList()) {
             return True();
@@ -493,9 +519,12 @@ public:
     }
     void lparse() {
         try {
-            std::cout << __PRETTY_FUNCTION__ << "\n";
             if (Program() && i == TL.tok_lis.size() - 1) {
-                std::cout << "YES";
+                std::cout << "YES\n";
+                // while (!g.empty()) {
+                //     std::cout << g.top() << "\n";
+                //     g.pop();
+                // }
                 return;
             }
             else {
@@ -507,6 +536,16 @@ public:
         catch (const char* e) {
             std::cerr << "Caught Error: " << e << "\n";
         }
+    }
+    void outNodes(std::ofstream& out) {
+        // while (!g.empty()) {
+        //     out << g.top() << "\n";
+        //     g.pop();
+        // }
+        AST.NodeDictGenerate(out);
+    }
+    void outTree(std::ofstream& out) {
+        AST.levelOrderTraversal(out);
     }
 };
 #endif  // PARSER_H
