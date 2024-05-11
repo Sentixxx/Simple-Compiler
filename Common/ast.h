@@ -12,8 +12,12 @@
 #endif
 class Node;
 using NodeList = std::vector<std::shared_ptr<Node>>;
-// using NodeValue = std::variant<std::string , int , float>;
-using NodeValue = std::string;
+using NodeValue = std::variant<std::string , TokenInfo>;
+// using NodeValue = std::string;
+struct {
+    std::string operator()(std::string t) { return t; }
+    std::string operator()(TokenInfo t) { return t.lexeme; }
+} visitor;
 class Node {
 public:
     int id;
@@ -58,21 +62,14 @@ public:
 
     std::shared_ptr<Node> addNode(std::shared_ptr<Node> current_node , NodeValue value) {
         // std::cout << "addNode: " << value << "\n";
-        auto new_node = std::make_shared<Node>(std::move(value) , cnt++);
+        auto new_node = std::make_shared<Node>(std::move("grammar") , std::move(value) , cnt++);
         new_node->parent = current_node;
         current_node->children.push_back(new_node);
         return new_node;
     }
-
-    void addLeafNode(std::shared_ptr<Node> current_node , NodeValue value) {
-        // std::cout << "addLeafNode: " << value << "\n";
-        auto new_node = std::make_shared<Node>(std::move(value) , cnt++);
-        new_node->parent = current_node;
-        current_node->children.push_back(new_node);
-    }
     void addLeafNode(std::shared_ptr<Node> current_node , TokenInfo token) {
         // std::cout << "addLeafNode: " << token.lexeme << "\n";
-        auto new_node = std::make_shared<Node>(std::move(tok_transformed[token.token]) , std::move(token.lexeme) , cnt++);
+        auto new_node = std::make_shared<Node>(std::move(tok_transformed[token.token]) , std::move(token) , cnt++);
         new_node->parent = current_node;
         current_node->children.push_back(new_node);
     }
@@ -115,7 +112,7 @@ public:
                 queue.pop(); // 将当前节点从队列中移除
 
                 // 此处处理当前节点，例如打印其值
-                out << current_node->id << " " << current_node->value << "\n";
+                out << current_node->id << " " << std::visit(visitor , current_node->value) << "\n";
 
                 // 将当前节点的子节点加入队列
                 for (auto& child : current_node->children) {

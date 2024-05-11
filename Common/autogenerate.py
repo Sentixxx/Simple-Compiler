@@ -3,7 +3,7 @@ from graphviz import Digraph
 node_dic = {}
 
 def read_nodes():
-    with open('../Data/nodes.txt', 'r') as file:
+    with open('../Data/nodes.out', 'r') as file:
         lines = file.readlines()
     for line in lines:
         
@@ -15,7 +15,7 @@ def read_nodes():
 
 
 def tree_parser():
-    with open('../Data/tree.txt', 'r') as file:
+    with open('../Data/tree.out', 'r') as file:
         lines = file.readlines()
     tree_dict = {}
     for line in lines:
