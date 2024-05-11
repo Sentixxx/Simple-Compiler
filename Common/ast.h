@@ -49,11 +49,18 @@ public:
 };
 
 class ATree {
+private:
+    bool isToken(std::string s) {
+        if (s == "TYPE" || s == "CmpOp" || s == "ExtDefRest" || s == "VarListRest" || s == "VarList" || s == "FunDec" || s == "Factor" || s == "Term" || s == "Exp" || s == "CompExp" || s == "RelationExp" || s == "ConditionalExp" || s == "ConditionalStmt" || s == "ActParamList" || s == "CallStmt" || s == "LoopStmt" || s == "AssignmentStmt" || s == "ReturnStmt" || s == "BreakStmt" || s == "LocalVariableDeclaration" || s == "Stmt" || s == "StmtList" || s == "CompSt" || s == "ExtDef" || s == "ExtDefList" || s == "Program") {
+            return false;
+        }
+        return true;
+    }
 public:
     int cnt;
     std::shared_ptr<Node> root;
 
-    ATree() : root(std::make_shared<Node>(std::move("root") , std::move("root") , 0)) , cnt(1) {
+    ATree() : root(std::make_shared<Node>(std::move("Program") , std::move("Program") , 0)) , cnt(1) {
     }
 
     std::shared_ptr<Node> addNode(std::shared_ptr<Node> current_node , NodeValue value) {
@@ -115,7 +122,7 @@ public:
                 queue.pop(); // 将当前节点从队列中移除
 
                 // 此处处理当前节点，例如打印其值
-                out << current_node->id << " " << current_node->value << "\n";
+                out << current_node->id << ":" << current_node->value << "\n";
 
                 // 将当前节点的子节点加入队列
                 for (auto& child : current_node->children) {
@@ -142,12 +149,17 @@ public:
 
                 // 此处处理当前节点，例如打印其值
                 if (current_node->children.size() == 0) {
-                    out << current_node->id;
+                    if (isToken(current_node->value)) {
+                        out << current_node->id;
+                    }
+                    else {
+                        current_node->value = " ";
+                        out << current_node->id;
+                    }
                     // continue;
                 }
                 else
                     out << current_node->id << "——";
-
                 // 将当前节点的子节点加入队列
                 for (auto& child : current_node->children) {
                     if (child) {

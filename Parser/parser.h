@@ -43,12 +43,6 @@ private:
         // std::cout << "cur_in : " << cur->value << "\n";
         //std::cout << "in: " << name << "\n";
     }
-    bool isToken(std::string s) {
-        if (s == "TYPE" || s == "CmpOp" || s == "ExtDefRest" || s == "VarListRest" || s == "VarList" || s == "FunDec" || s == "Factor" || s == "Term" || s == "Exp" || s == "CompExp" || s == "RelationExp" || s == "ConditionalExp" || s == "ConditionalStmt" || s == "ActParamList" || s == "CallStmt" || s == "LoopStmt" || s == "AssignmentStmt" || s == "ReturnStmt" || s == "BreakStmt" || s == "LocalVariableDeclaration" || s == "Stmt" || s == "StmtList" || s == "CompSt" || s == "ExtDef" || s == "ExtDefList" || s == "Program") {
-            return false;
-        }
-        return true;
-    }
     void next() {
         maxi = std::max(i , maxi);
         if (i == TL.tok_lis.size() - 1) {
@@ -121,6 +115,7 @@ public:
         if (handleToken() == "==" || handleToken() == "!=" ||
             handleToken() == "<" || handleToken() == ">" ||
             handleToken() == "<=" || handleToken() == ">=") {
+            next();
             return True();
         }
         return False();
@@ -243,7 +238,7 @@ public:
         in(handleFuncName(__PRETTY_FUNCTION__));
         if (Exp()) {
             if (CmpOp()) {
-                next();
+                // next();
                 if (Exp())
                     return True();
                 back();
@@ -510,7 +505,7 @@ public:
         return True();
     }
     bool Program() {
-        in(handleFuncName(__PRETTY_FUNCTION__));
+        // in(handleFuncName(__PRETTY_FUNCTION__));
         // std::cout << "Program --> ";
         if (ExtDefList()) {
             return True();
