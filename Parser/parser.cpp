@@ -8,6 +8,6 @@ int       main() {
     PR.lparse();
     std::ofstream node = std::ofstream("../Data/nodes.out");
     std::ofstream tree = std::ofstream("../Data/tree.out");
-    PR.outNodes(node);
     PR.outTree(tree);
+    PR.outNodes(node);
 }

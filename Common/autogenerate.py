@@ -6,11 +6,10 @@ def read_nodes():
     with open('../Data/nodes.out', 'r') as file:
         lines = file.readlines()
     for line in lines:
-        
-        node_id = line.split(' ')[0]
-        node_name = line.split(' ')[1].strip()
+        node_id = line.split(':')[0]
+        node_name = line.split(':')[1].strip()
         node_dic[node_id] = node_name
-        #print(node_id, node_name)
+        print(node_id, node_name)
         dot.node(node_id, label = node_name)
 
 
