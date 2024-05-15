@@ -108,7 +108,10 @@ class Notepad:
         # To create a feature of description of the notepad
         self.__thisMenuBar.add_command(label="About",
                                         command=self.__showAbout)
-
+        Button(self.__root,text='Render',command=self.__render).grid(row=1,column=0)
+        Button(self.__root,text='Quit',command=self.__quitApplication).grid(row=1,column=1)
+        Button(self.__root,text='Save',command=self.__saveFile).grid(row=1,column=2)
+        Button(self.__root,text='About',command=self.__showAbout).grid(row=1,column=3)
         self.__root.config(menu=self.__thisMenuBar)
 
         self.__thisScrollBar.pack(side=RIGHT, fill=Y)
@@ -116,15 +119,21 @@ class Notepad:
 
         # Scrollbar will adjust automatically according to the content
         # self.__thisScrollBar.config(command=self.yviewSync)
-        self.__thisTextArea.config(yscrollcommand=self.__thisScrollBar.set)
         self.__thisLineNumbers.config(yscrollcommand=self.__thisScrollBar.set)
+        self.__thisTextArea.config(yscrollcommand=self.__thisScrollBar.set)
         
         self.__thisTextArea.bind('<KeyRelease>', self.__onKey)
         self.__thisTextArea.bind('<MouseWheel>', self.__onScroll)
     
     def __render(self):
         self.__saveFile()
+        # cd Lexer && g++ $(CXXFLAGS) -o lexer lexer.cpp && ./lexer
+        subprocess.run(['g++', 'Lexer/lexer.cpp','-std=c++17', '-o',  'Lexer/lexer'])
+        subprocess.run(['./Lexer/lexer'])
+        subprocess.run(['g++', 'Parser/parser.cpp','-std=c++17', '-o',  'Parser/parser'])
+        subprocess.run(['./Parser/parser'])
         subprocess.run(['python', 'Common/autogenerate.py'])
+        #subprocess.run(['python', 'Common/autogenerate.py'])
 
     def __quitApplication(self):
         self.__root.destroy()

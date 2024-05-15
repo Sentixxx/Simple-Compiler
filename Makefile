@@ -1,11 +1,13 @@
 CXXFLAGS := -std=c++17 -O3
 
-.PHONY: all clean start lexer parser
+.PHONY: all clean start lexer parser generate render test
 
 all:
 	start
+	test
 
 start: lexer parser generate
+
 
 lexer:
 	cd Lexer && g++ $(CXXFLAGS) -o lexer lexer.cpp && ./lexer
@@ -15,8 +17,7 @@ parser:
 
 generate:
 	pwd
-	cd Common && python ./autogenerate.py
-
+	python Common/autogenerate.py
 
 clean:
 	@echo "Cleaning up..."

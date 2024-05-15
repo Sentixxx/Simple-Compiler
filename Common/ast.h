@@ -85,9 +85,12 @@ public:
     }
 
     std::shared_ptr<Node> backTrace(const std::shared_ptr<Node>& cur) {
-        // std::cout << "backTrace: " << cur->value << "\n";
+        //std::cout << "backTrace: " << cur->value << "\n";
         if (cur->parent.lock() != nullptr) {
             return cur->parent.lock();
+        }
+        else if (cur->value == "Program") {
+            return cur;
         }
         else {
             throw "empty parent Node";

@@ -96,8 +96,8 @@ private:
 public:
     TopParser(TokenList& TL , ATree& AST) : TL(TL) , AST(AST) {
         cur = AST.root;
-        this->inputFile = "../Data/lexer_token.out";
-        this->outputFile = "../Data/parser_list.out";
+        this->inputFile = "./Data/lexer_token.out";
+        this->outputFile = "./Data/parser_list.out";
         this->is = std::ifstream(inputFile);
         this->os = std::ofstream(outputFile);
     }
