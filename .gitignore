@@ -25,3 +25,4 @@ tempCodeRunnerFile.cpp
 # system ignore
 .DS_Store
 Thnmbs.db
+venv/*
