@@ -132,7 +132,7 @@ class Notepad:
         subprocess.run(['./Lexer/lexer'])
         subprocess.run(['g++', 'Parser/parser.cpp','-std=c++17', '-o',  'Parser/parser'])
         subprocess.run(['./Parser/parser'])
-        subprocess.run(['python', 'Common/autogenerate.py'])
+        subprocess.run(['venv/bin/python.exe', 'Common/autogenerate.py'])
         #subprocess.run(['python', 'Common/autogenerate.py'])
 
     def __quitApplication(self):
