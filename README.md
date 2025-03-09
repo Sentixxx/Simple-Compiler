@@ -1,7 +1,7 @@
 # Compiler-Principles-2024-Spring
 
 - exp_code for compiler principles lesson.
-- source:https://github.com/Sentixxx/Compiler-Principles-2024-Spring
+- [source](https://github.com/Sentixxx/Simple-Compiler)
 
 ## How to Use(New)
 
